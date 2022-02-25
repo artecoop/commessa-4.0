@@ -14,7 +14,8 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks', '@typescript-eslint'],
     rules: {
-        'react/react-in-jsx-scope': 'off'
+        'react/react-in-jsx-scope': 'off',
+        'react/jsx-key': 'off'
     },
     settings: {
         react: {
