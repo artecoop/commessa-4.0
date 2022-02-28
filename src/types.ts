@@ -17,6 +17,7 @@ export type Processing = {
 };
 
 export type Commessa = {
+    id: number;
     title: string;
     createdAt: Date;
     fields?: CommessaField[];

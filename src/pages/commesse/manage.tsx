@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { Commessa, Field, FieldType, CommessaProcessing, Processing } from 'types';
+import { Commessa, Field, FieldType, Processing } from 'types';
 
 import Layout from '@components/_layout';
-import { useFieldArray, useForm } from 'react-hook-form';
 
 export const ManageCommessa: React.FC = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
     const [availableFields] = useState<Field[]>(JSON.parse(sessionStorage.getItem('fields') ?? '[]'));
     const [availableProcessings] = useState<Processing[]>(JSON.parse(sessionStorage.getItem('processings') ?? '[]'));
 
@@ -15,6 +19,7 @@ export const ManageCommessa: React.FC = () => {
         handleSubmit,
         register,
         control,
+        setValue,
         formState: { errors }
     } = useForm<Commessa>();
 
@@ -36,6 +41,18 @@ export const ManageCommessa: React.FC = () => {
         control
     });
 
+    useEffect(() => {
+        if (id) {
+            const storage: Commessa[] = JSON.parse(sessionStorage.getItem('commesse') ?? '[]');
+            const commessa = storage.find(s => s.id === +id);
+            if (commessa) {
+                setValue('title', commessa.title, { shouldValidate: true, shouldDirty: true });
+                setValue('fields', commessa.fields, { shouldValidate: true, shouldDirty: true });
+                setValue('processings', commessa.processings, { shouldValidate: true, shouldDirty: true });
+            }
+        }
+    }, [id, setValue]);
+
     const addField = () => {
         if (selectedField > -1) {
             const field = availableFields.find(a => a.id === selectedField);
@@ -47,11 +64,31 @@ export const ManageCommessa: React.FC = () => {
     };
 
     const onSubmit = async (input: Commessa) => {
-        console.log(input);
+        const storage: Commessa[] = JSON.parse(sessionStorage.getItem('commesse') ?? '[]');
+        if (id) {
+            const index = storage.findIndex(s => s.id === +id);
+            if (index > -1) {
+                storage[index] = input;
+                storage[index].id = +id;
+            }
+        } else {
+            const newId =
+                storage
+                    ?.map(f => f.id)
+                    .sort((a, b) => a - b)
+                    .pop() ?? 0;
+
+            input.id = newId;
+            storage.push(input);
+
+            navigate(`/commesse/manage/${newId}`, { replace: true });
+        }
+
+        sessionStorage.setItem('commesse', JSON.stringify(storage));
     };
 
     return (
-        <Layout title="Aggiungi Commessa<">
+        <Layout title="Aggiungi Commessa">
             <h1>Aggiungi Commessa</h1>
 
             <form className="mt-8" onSubmit={handleSubmit(onSubmit)}>
