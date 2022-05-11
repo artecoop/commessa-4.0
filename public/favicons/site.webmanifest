@@ -1,0 +1,14 @@
+{
+    "name": "Art & Coop Commessa",
+    "short_name": "Art & Coop Commessa",
+    "icons": [
+        {
+            "src": "/favicons/android-chrome-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#C0D72E",
+    "background_color": "#C0D72E",
+    "display": "standalone"
+}

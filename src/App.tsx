@@ -1,41 +1,30 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { LoadingOverlay } from '@mantine/core';
 
-import { Home } from './pages/home';
-import { Settings } from './pages/settings';
-import { Commesse } from './pages/commesse';
-import { ManageCommessa } from './pages/commesse/manage';
+import { RequireAuth } from './RequireAuth';
+
+import ErrorBoundary from '@components/error-boundary';
+
+const Login = lazy(() => import('./pages/login'));
+const Home = lazy(() => import('./pages/home'));
+const Fields = lazy(() => import('./pages/fields'));
 
 export default function App() {
     return (
-        <>
-            <Router>
-                <Routes>
-                    <Route index element={<Home />} />
-                    <Route path="/commesse">
-                        <Route index element={<Commesse />} />
-                        <Route path="manage" element={<ManageCommessa />} />
-                        <Route path="manage/:id" element={<ManageCommessa />} />
-                    </Route>
-                    <Route path="/settings">
-                        <Route index element={<Settings />} />
-                    </Route>
-                </Routes>
-            </Router>
+        <Router>
+            <ErrorBoundary>
+                <Suspense fallback={<LoadingOverlay visible={true} />}>
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route element={<RequireAuth />}>
+                            <Route path="/" element={<Home />} />
 
-            <ToastContainer
-                key="ToastContainer"
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={true}
-                closeButton={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                draggable
-                pauseOnHover={false}
-                theme="colored"
-            />
-        </>
+                            <Route path="/fields" element={<Fields />} />
+                        </Route>
+                    </Routes>
+                </Suspense>
+            </ErrorBoundary>
+        </Router>
     );
 }

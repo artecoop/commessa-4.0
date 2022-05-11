@@ -1,34 +1,35 @@
+import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
-import ReactDOM from 'react-dom';
+import { SWRConfig } from 'swr';
+import { MantineProvider } from '@mantine/core';
+import { NotificationsProvider } from '@mantine/notifications';
+
+import fetchData from '@lib/api';
+
+import { AuthProvider } from 'contexts/auth';
 
 import App from './App';
 
 import './styles/global.css';
 
-import { Field, FieldType, Processing } from './types';
-
-const fields: Field[] = [
-    { id: 1, fieldName: 'Tipo Carta', fieldType: FieldType.TEXT },
-    { id: 2, fieldName: 'Verniciatura', fieldType: FieldType.BOOLEAN },
-    { id: 3, fieldName: 'Colori', fieldType: FieldType.NUMBER },
-    { id: 4, fieldName: 'Formato', fieldType: FieldType.TEXT },
-    { id: 5, fieldName: 'Grammatura', fieldType: FieldType.NUMBER }
-];
-
-sessionStorage.setItem('fields', JSON.stringify(fields));
-
-const processings: Processing[] = [
-    { id: 1, name: 'Stampa' },
-    { id: 2, name: 'Taglio' },
-    { id: 3, name: 'Brossura' },
-    { id: 4, name: 'Plastifica' }
-];
-
-sessionStorage.setItem('processings', JSON.stringify(processings));
-
-ReactDOM.render(
+const root = createRoot(document.getElementById('root') as Element);
+root.render(
     <StrictMode>
-        <App />
-    </StrictMode>,
-    document.getElementById('root')
+        <SWRConfig
+            value={{
+                suspense: true,
+                fetcher: fetchData,
+                revalidateOnFocus: false,
+                revalidateOnMount: false
+            }}
+        >
+            <MantineProvider>
+                <NotificationsProvider autoClose={5000}>
+                    <AuthProvider>
+                        <App />
+                    </AuthProvider>
+                </NotificationsProvider>
+            </MantineProvider>
+        </SWRConfig>
+    </StrictMode>
 );

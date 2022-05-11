@@ -1,9 +1,12 @@
 import Layout from '@components/_layout';
+import { Title } from '@mantine/core';
 
-export const Home: React.FC = () => {
+const Home: React.FC = () => {
     return (
         <Layout title="Benvenuti">
-            <h1>Benvenuti</h1>
+            <Title order={1}>Benvenuti</Title>
         </Layout>
     );
 };
+
+export default Home;
