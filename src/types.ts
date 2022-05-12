@@ -22,39 +22,16 @@ export type Profile = {
     last_access: Date;
 };
 
-export enum FieldType {
-    TEXT = 'text',
-    TEXTAREA = 'textarea',
-    NUMBER = 'number',
-    CHECKBOX = 'checkbox'
-}
-
-export type Field = {
-    id: number;
-    name: string;
-    type: FieldType;
-};
-
-export type Processing = {
-    id: number;
-    name: string;
-};
-
-export type Commessa = {
-    id: number;
+export type Contract = {
+    id?: number;
+    number: number;
+    date: Date;
+    customer: string;
     title: string;
-    createdAt: Date;
-    fields?: CommessaField[];
-    processings?: CommessaProcessing[];
-};
-
-export type CommessaField = {
-    field: Field;
-    value: string | number | boolean;
-};
-
-export type CommessaProcessing = {
-    processing: Processing;
     description?: string;
-    hours?: number;
+    desired_delivery?: Date;
+    estimate?: string;
+    estimate_date?: Date;
+    representative: string;
+    quantity?: number;
 };

@@ -7,3 +7,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .icon-field-left {
+        @apply h-6 w-6;
+    }
+}

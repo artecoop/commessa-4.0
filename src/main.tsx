@@ -3,6 +3,11 @@ import { StrictMode } from 'react';
 import { SWRConfig } from 'swr';
 import { MantineProvider } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
+import dayjs from 'dayjs';
+
+// Initialize DayJS
+import 'dayjs/locale/it';
+dayjs.locale('it');
 
 import fetchData from '@lib/api';
 

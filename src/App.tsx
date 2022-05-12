@@ -8,7 +8,8 @@ import ErrorBoundary from '@components/error-boundary';
 
 const Login = lazy(() => import('./pages/login'));
 const Home = lazy(() => import('./pages/home'));
-const Fields = lazy(() => import('./pages/fields'));
+const Commesse = lazy(() => import('./pages/list'));
+const Manage = lazy(() => import('./pages/manage'));
 
 export default function App() {
     return (
@@ -20,7 +21,11 @@ export default function App() {
                         <Route element={<RequireAuth />}>
                             <Route path="/" element={<Home />} />
 
-                            <Route path="/fields" element={<Fields />} />
+                            <Route path="/commesse">
+                                <Route index element={<Commesse />} />
+                                <Route path="manage" element={<Manage />} />
+                                <Route path="manage/:id" element={<Manage />} />
+                            </Route>
                         </Route>
                     </Routes>
                 </Suspense>

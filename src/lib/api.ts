@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-const fetchData = async (path: string, variables?: unknown, method: 'GET' | 'POST' = 'GET') => {
+const fetchData = async (path: string, variables?: unknown, method: 'GET' | 'POST' | 'PATCH' = 'GET') => {
     // Merge default and user options
     const options: RequestInit = {
         method,
