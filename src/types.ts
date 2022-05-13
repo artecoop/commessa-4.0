@@ -8,6 +8,21 @@ export type Meta = {
     filter_count?: number;
 };
 
+export class HTTPError extends Error {
+    code: number;
+
+    constructor(code: number, message: string) {
+        super(message);
+        this.code = code;
+    }
+}
+
+export type DirectusErrorBody = {
+    errors: {
+        message: string;
+    }[];
+};
+
 export type LoginResult = {
     access_token: string;
     expires: number;
@@ -34,4 +49,47 @@ export type Contract = {
     estimate_date?: Date;
     representative: string;
     quantity?: number;
+    processings?: Processing[];
+    offset_prints?: OffsetPrint[];
+    digital_prints?: DigitalPrint[];
+};
+
+export type Processing = {
+    id?: number;
+    name: string;
+    setup_hours?: number;
+    estimate_hours: number;
+    working_hours: number;
+    kind: string;
+    note?: string;
+};
+
+export type OffsetPrint = {
+    id?: number;
+    run_type: string;
+    colors?: string[];
+    pantones?: Pantone[];
+    varnish?: string;
+    yield: number;
+    paper: number;
+};
+
+export type DigitalPrint = {
+    id?: number;
+    description: string;
+    color: boolean;
+    sheets: number;
+    paper: number;
+};
+
+export type Paper = {
+    id?: number;
+    name: string;
+    weight: number;
+    format: string;
+    orientation?: string;
+};
+
+export type Pantone = {
+    name: string;
 };

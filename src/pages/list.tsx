@@ -9,7 +9,7 @@ import { ActionIcon, Title } from '@mantine/core';
 import { PencilIcon, PlusIcon } from '@heroicons/react/outline';
 
 const Commesse: React.FC = () => {
-    const { data: contracts } = useSWR<FetchResult<Contract[]>>('/items/contracts');
+    const { data: contracts } = useSWR<FetchResult<Contract[]>>(['/items/contracts', { fields: ['id', 'title', 'date', 'customer', 'desired_delivery'] }]);
 
     return (
         <Layout title="Commesse">

@@ -1,7 +1,8 @@
 import qs from 'qs';
 
-const fetchData = async (path: string, variables?: unknown, method: 'GET' | 'POST' | 'PATCH' = 'GET') => {
-    // Merge default and user options
+import { DirectusErrorBody, HTTPError } from 'types';
+
+const fetchData = async (path: string, variables?: unknown, method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET') => {
     const options: RequestInit = {
         method,
         headers: {
@@ -10,24 +11,32 @@ const fetchData = async (path: string, variables?: unknown, method: 'GET' | 'POS
         }
     };
 
-    // Build request URL
     let requestUrl = `https://36mmwjow.directus.app${path}`;
 
-    if (method === 'GET') {
-        const queryString = qs.stringify(variables, { encodeValuesOnly: true });
-        if (queryString) {
-            requestUrl = `${requestUrl}?${queryString}`;
+    switch (method) {
+        case 'GET': {
+            const queryString = qs.stringify(variables, { encodeValuesOnly: true });
+            if (queryString) {
+                requestUrl = `${requestUrl}?${queryString}`;
+            }
+
+            break;
         }
-    } else {
-        options.body = JSON.stringify(variables);
+        case 'POST':
+        case 'PATCH':
+            options.body = JSON.stringify(variables);
+            break;
     }
 
-    // Trigger API call
     const response = await fetch(requestUrl, options);
 
-    // Handle response
     if (!response.ok) {
-        throw new Error(response.statusText);
+        const errorBody = (await response.json()) as DirectusErrorBody;
+        if (errorBody && errorBody.errors && errorBody.errors.length > 0) {
+            throw new HTTPError(response.status, errorBody.errors.map(e => e.message).join(', '));
+        }
+
+        throw new HTTPError(response.status, response.statusText);
     }
 
     return response.json();

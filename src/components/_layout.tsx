@@ -2,7 +2,7 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton } from '@mantine/core';
-import { CubeTransparentIcon, HomeIcon } from '@heroicons/react/outline';
+import { CubeTransparentIcon, HomeIcon, PaperAirplaneIcon } from '@heroicons/react/outline';
 
 type LayoutProps = {
     title?: string;
@@ -19,7 +19,8 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
 
     const menu = [
         { icon: <HomeIcon />, color: 'lime', label: 'Home', link: '/' },
-        { icon: <CubeTransparentIcon />, color: 'indigo', label: 'Commesse', link: '/commesse' }
+        { icon: <CubeTransparentIcon />, color: 'indigo', label: 'Commesse', link: '/commesse' },
+        { icon: <PaperAirplaneIcon />, color: 'orange', label: 'Carta', link: '/papers' }
     ];
 
     return (

@@ -10,6 +10,7 @@ const Login = lazy(() => import('./pages/login'));
 const Home = lazy(() => import('./pages/home'));
 const Commesse = lazy(() => import('./pages/list'));
 const Manage = lazy(() => import('./pages/manage'));
+const Paper = lazy(() => import('./pages/paper'));
 
 export default function App() {
     return (
@@ -26,6 +27,8 @@ export default function App() {
                                 <Route path="manage" element={<Manage />} />
                                 <Route path="manage/:id" element={<Manage />} />
                             </Route>
+
+                            <Route path="/papers" element={<Paper />} />
                         </Route>
                     </Routes>
                 </Suspense>

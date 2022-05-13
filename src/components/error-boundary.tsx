@@ -1,6 +1,7 @@
 import { Component, ComponentProps, ReactNode } from 'react';
 
 import { ExclamationCircleIcon } from '@heroicons/react/outline';
+import { HTTPError } from 'types';
 
 class ErrorBoundary extends Component<ComponentProps<'div'>, { error?: Error }> {
     state: { error?: Error } = {};
@@ -16,7 +17,7 @@ class ErrorBoundary extends Component<ComponentProps<'div'>, { error?: Error }> 
             return this.props.children;
         }
 
-        if (['forbidden', 'unauthorized', 'unauthenticated'].includes(this.state.error?.message.toLowerCase())) {
+        if (this.state.error instanceof HTTPError && [401, 403].includes(this.state.error.code)) {
             window.location.replace(`/login?returnUrl=${window.location.pathname}`);
             return <></>;
         }

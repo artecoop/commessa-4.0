@@ -48,8 +48,6 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
     const { mutate } = useSWRConfig();
 
     const onSubmit = async (input: Contract) => {
-        console.log(input);
-
         const url = `/items/contracts${contract?.id ? `/${contract.id}` : ''}`;
 
         try {
@@ -60,12 +58,15 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                 navigate(`/commesse/manage/${result?.data.id}`, { replace: true });
             }
         } catch (e) {
-            console.log(e);
+            const error = e as Error;
+            showNotification({ message: error.message, color: 'red' });
         }
     };
 
     return (
         <>
+            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+
             <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex">
                     <Controller
@@ -120,7 +121,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                 </div>
 
                 <div className="mt-8">
-                    <TextInput label="Titolo" size="xl" variant="filled" required {...register('title', { required: 'Il titolo è obbligatorio' })} error={errors.customer?.message} />
+                    <TextInput label="Titolo" size="xl" variant="filled" required {...register('title', { required: 'Il titolo è obbligatorio' })} error={errors.title?.message} />
 
                     <Textarea label="Descrizione" size="xl" className="mt-4" variant="filled" {...register('description')} />
                 </div>
