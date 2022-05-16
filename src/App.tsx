@@ -7,7 +7,6 @@ import { RequireAuth } from './RequireAuth';
 import ErrorBoundary from '@components/error-boundary';
 
 const Login = lazy(() => import('./pages/login'));
-const Home = lazy(() => import('./pages/home'));
 const Commesse = lazy(() => import('./pages/list'));
 const Manage = lazy(() => import('./pages/manage'));
 const Paper = lazy(() => import('./pages/paper'));
@@ -20,8 +19,6 @@ export default function App() {
                     <Routes>
                         <Route path="/login" element={<Login />} />
                         <Route element={<RequireAuth />}>
-                            <Route path="/" element={<Home />} />
-
                             <Route path="/commesse">
                                 <Route index element={<Commesse />} />
                                 <Route path="manage" element={<Manage />} />

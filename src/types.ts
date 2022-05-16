@@ -20,6 +20,9 @@ export class HTTPError extends Error {
 export type DirectusErrorBody = {
     errors: {
         message: string;
+        extensions: {
+            code: string;
+        };
     }[];
 };
 
@@ -76,6 +79,7 @@ export type OffsetPrint = {
 
 export type DigitalPrint = {
     id?: number;
+    kind: string;
     description: string;
     color: boolean;
     sheets: number;

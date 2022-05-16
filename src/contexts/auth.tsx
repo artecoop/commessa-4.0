@@ -1,6 +1,8 @@
 import { useEffect, useState, useContext, createContext, PropsWithChildren } from 'react';
-import fetchData from '@lib/api';
-import { LoginResult, Profile } from 'types';
+
+import { apiGet, apiPost } from '@lib/api';
+
+import { FetchResult, LoginResult, Profile } from 'types';
 
 type ContextProps = {
     isLoading?: boolean;
@@ -22,11 +24,22 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
     const [profile, setProfile] = useState<Profile>();
 
     useEffect(() => {
-        setIsAuthenticated(sessionStorage.getItem(TOKEN_KEY) !== undefined && sessionStorage.getItem(TOKEN_KEY) !== '');
-        const sessionProfile = sessionStorage.getItem(PROFILE_KEY);
-        if (sessionProfile) {
-            const p = JSON.parse(sessionProfile) as Profile;
-            setProfile(p);
+        const sessionToken = sessionStorage.getItem(TOKEN_KEY);
+        if (sessionToken) {
+            const token = JSON.parse(sessionToken) as LoginResult;
+
+            if (token.expires < Date.now()) {
+                sessionStorage.removeItem(TOKEN_KEY);
+                sessionStorage.removeItem(PROFILE_KEY);
+                return;
+            }
+
+            setIsAuthenticated(true);
+
+            const sessionProfile = sessionStorage.getItem(PROFILE_KEY);
+            if (sessionProfile) {
+                setProfile(JSON.parse(sessionProfile));
+            }
         }
 
         setIsLoading(false);
@@ -35,10 +48,13 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
     const login = async (email: string, password: string): Promise<void> => {
         setIsLoading(true);
         try {
-            const result = await fetchData('/auth/login', { email, password }, 'POST');
-            sessionStorage.setItem(TOKEN_KEY, result.data.access_token);
+            const result = await apiPost<FetchResult<LoginResult>>('/auth/login', { email, password });
 
-            const me = await fetchData('/users/me', undefined, 'GET');
+            result.data.expires = Date.now() + result.data.expires;
+
+            sessionStorage.setItem(TOKEN_KEY, JSON.stringify(result.data));
+
+            const me = await apiGet<FetchResult<Profile>>('/users/me');
             sessionStorage.setItem(PROFILE_KEY, JSON.stringify(me.data));
 
             setIsAuthenticated(true);

@@ -1,12 +1,13 @@
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import useSWR, { useSWRConfig } from 'swr';
-import { showNotification } from '@mantine/notifications';
 
-import fetchData from '@lib/api';
+import { apiPatch } from '@lib/api';
+import { error, success } from '@lib/notification';
 
 import { Contract, FetchResult, OffsetPrint, Paper } from 'types';
+import { offsetRunTypes, varnishTypes } from 'values';
 
-import { ActionIcon, Button, Checkbox, CheckboxGroup, NumberInput, Select, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, Checkbox, CheckboxGroup, NumberInput, Select, Table, TextInput, Title } from '@mantine/core';
 
 import { PlusIcon, TrashIcon } from '@heroicons/react/outline';
 
@@ -22,7 +23,6 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
         handleSubmit,
         register,
         control,
-        reset,
         formState: { errors }
     } = useForm<OffsetPrint>();
 
@@ -42,14 +42,14 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
 
         contract?.offset_prints?.push(input);
 
-        showNotification({ message: "Avviamento aggiunto all'elenco", color: 'green' });
+        success("Avviamento aggiunto all'elenco");
     };
 
     const removeOffsetPrint = async (id: number) => {
         const index = contract?.offset_prints?.findIndex(op => op.id === id);
         if (index !== undefined && index > -1) {
             contract?.offset_prints?.splice(index, 1);
-            showNotification({ message: "Avviamento rimosso all'elenco", color: 'green' });
+            success("Avviamento rimosso all'elenco");
         }
     };
 
@@ -57,12 +57,11 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
         const url = `/items/contracts/${contract?.id}`;
 
         try {
-            await mutate<FetchResult<Contract>>([url, queryFields], fetchData(url, contract, 'PATCH'));
+            await mutate<FetchResult<Contract>>([url, queryFields], apiPatch(url, contract));
 
-            showNotification({ message: 'Avviamenti salvati con successo', color: 'green' });
+            success('Avviamenti salvati con successo');
         } catch (e) {
-            const error = e as Error;
-            showNotification({ message: error.message, color: 'red' });
+            error(e);
         }
     };
 
@@ -77,21 +76,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         control={control}
                         rules={{ required: 'Il tipo di avviamento è obbligatorio' }}
                         render={({ field, fieldState }) => (
-                            <Select
-                                label="Avviamento"
-                                size="xl"
-                                variant="filled"
-                                required
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={fieldState.error?.message}
-                                data={[
-                                    { value: 'b', label: 'B' },
-                                    { value: 'bv', label: 'B+V' },
-                                    { value: 'bv12', label: 'B/V Giro 12' },
-                                    { value: 'bv16', label: 'B/V Giro 16' }
-                                ]}
-                            />
+                            <Select label="Avviamento" size="xl" variant="filled" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} data={offsetRunTypes} />
                         )}
                     />
 
@@ -118,7 +103,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         control={control}
                         rules={{ required: 'La resa è obbligatoria' }}
                         render={({ field, fieldState }) => (
-                            <NumberInput label="Resa" size="xl" variant="filled" className="ml-4" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                            <NumberInput label="Resa" size="xl" variant="filled" className="ml-4" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
                         )}
                     />
 
@@ -138,20 +123,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     <Controller
                         name="varnish"
                         control={control}
-                        render={({ field }) => (
-                            <Select
-                                label="Vernice"
-                                size="xl"
-                                variant="filled"
-                                className="ml-4"
-                                value={field.value}
-                                onChange={field.onChange}
-                                data={[
-                                    { value: 'fulltable', label: 'Tavola piena' },
-                                    { value: 'reserve', label: 'Riserva' }
-                                ]}
-                            />
-                        )}
+                        render={({ field }) => <Select label="Vernice" size="xl" variant="filled" className="ml-4" value={field.value} onChange={field.onChange} data={varnishTypes} />}
                     />
                 </div>
 
@@ -181,15 +153,9 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     ))}
                 </div>
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">
-                        Aggiungi
-                    </Button>
-                    <Button variant="outline" size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset(contract)}>
-                        Reset
-                    </Button>
-                    <Button variant="outline" size="xl" uppercase color="lime" className="ml-4 w-36" onClick={() => save()}>
-                        Salva
+                <div className="mt-4">
+                    <Button type="submit" size="md" uppercase variant="outline" className="w-full">
+                        Aggiungi avviamento
                     </Button>
                 </div>
             </form>
@@ -199,27 +165,27 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     <Title order={1} className="my-4">
                         Avviamenti
                     </Title>
-                    <table className="w-full table-auto">
+                    <Table striped>
                         <thead>
                             <tr>
-                                <th className="px-4 py-2 text-left">Tipo</th>
-                                <th className="px-4 py-2 text-left">Carta</th>
-                                <th className="px-4 py-2 text-left">Resa</th>
-                                <th className="px-4 py-2 text-left">Colore</th>
-                                <th className="px-4 py-2 text-left">Pantoni</th>
-                                <th className="px-4 py-2 text-left">Vernice</th>
+                                <th className="px-4 py-2">Tipo</th>
+                                <th className="px-4 py-2">Carta</th>
+                                <th className="px-4 py-2">Resa</th>
+                                <th className="px-4 py-2">Colore</th>
+                                <th className="px-4 py-2">Pantoni</th>
+                                <th className="px-4 py-2">Vernice</th>
                                 <th className="w-16" />
                             </tr>
                         </thead>
                         <tbody>
                             {contract?.offset_prints?.map(p => (
-                                <tr key={p.id} className="bg-slate-100 even:bg-slate-200">
-                                    <td className="px-4 py-2 text-left">{p.run_type}</td>
-                                    <td className="px-4 py-2 text-left">{papers?.data.find(d => d.id === p.paper)?.name}</td>
-                                    <td className="px-4 py-2 text-left">{p.yield}</td>
-                                    <td className="px-4 py-2 text-left">{p.colors?.map(c => c.toUpperCase())}</td>
-                                    <td className="px-4 py-2 text-left">{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
-                                    <td className="px-4 py-2 text-left">{p.varnish ? (p.varnish === 'fulltable' ? 'Tavola piena' : 'Riserva') : '-'}</td>
+                                <tr key={p.id}>
+                                    <td className="px-4 py-2">{offsetRunTypes.find(r => r.value === p.run_type)?.label}</td>
+                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === p.paper)?.name}</td>
+                                    <td className="px-4 py-2">{p.yield}</td>
+                                    <td className="px-4 py-2">{p.colors?.map(c => c.toUpperCase())}</td>
+                                    <td className="px-4 py-2">{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
+                                    <td className="px-4 py-2">{p.varnish ? (p.varnish === 'fulltable' ? 'Tavola piena' : 'Riserva') : '-'}</td>
                                     <td>
                                         <ActionIcon color="red" size="lg" onClick={() => removeOffsetPrint(p.id as number)}>
                                             <TrashIcon />
@@ -228,7 +194,11 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>{' '}
+                    </Table>
+
+                    <Button variant="outline" size="xl" uppercase color="lime" className="mt-8 w-full" onClick={() => save()}>
+                        Salva
+                    </Button>
                 </>
             )}
         </>

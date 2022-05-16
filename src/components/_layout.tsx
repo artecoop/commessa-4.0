@@ -18,7 +18,6 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
     });
 
     const menu = [
-        { icon: <HomeIcon />, color: 'lime', label: 'Home', link: '/' },
         { icon: <CubeTransparentIcon />, color: 'indigo', label: 'Commesse', link: '/commesse' },
         { icon: <PaperAirplaneIcon />, color: 'orange', label: 'Carta', link: '/papers' }
     ];

@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/it';
 dayjs.locale('it');
 
-import fetchData from '@lib/api';
+import { apiGet } from '@lib/api';
 
 import { AuthProvider } from 'contexts/auth';
 
@@ -23,13 +23,15 @@ root.render(
         <SWRConfig
             value={{
                 suspense: true,
-                fetcher: fetchData,
+                fetcher: apiGet,
+                shouldRetryOnError: false,
                 revalidateOnFocus: false,
-                revalidateOnMount: false
+                revalidateOnMount: false,
+                revalidateIfStale: false
             }}
         >
             <MantineProvider>
-                <NotificationsProvider autoClose={5000}>
+                <NotificationsProvider position="top-center" autoClose={5000}>
                     <AuthProvider>
                         <App />
                     </AuthProvider>

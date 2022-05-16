@@ -1,45 +1,57 @@
-import qs from 'qs';
+import axios, { AxiosRequestConfig } from 'axios';
 
-import { DirectusErrorBody, HTTPError } from 'types';
+import { DirectusErrorBody } from 'types';
 
-const fetchData = async (path: string, variables?: unknown, method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET') => {
-    const options: RequestInit = {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: !path.startsWith('/auth/') && sessionStorage.getItem('token') ? `Bearer ${sessionStorage.getItem('token') ?? ''}` : ''
+const Axios = axios.create({ baseURL: 'https://36mmwjow.directus.app' });
+
+Axios.interceptors.request.use(
+    async config => {
+        config.headers = config.headers ?? {};
+
+        const token = sessionStorage.getItem('token') && `Bearer ${JSON.parse(sessionStorage.getItem('token') ?? '{}')?.access_token}`;
+        if (token) {
+            config.headers['Authorization'] = token;
         }
-    };
 
-    let requestUrl = `https://36mmwjow.directus.app${path}`;
+        config.headers['Content-Type'] = 'application/json';
 
-    switch (method) {
-        case 'GET': {
-            const queryString = qs.stringify(variables, { encodeValuesOnly: true });
-            if (queryString) {
-                requestUrl = `${requestUrl}?${queryString}`;
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+);
+
+Axios.interceptors.response.use(
+    response => {
+        return Promise.resolve(response);
+    },
+    async error => {
+        const err = error.response.data as DirectusErrorBody;
+
+        if (error.response?.status === 403 && err.errors.map(p => p.extensions.code).includes('INVALID_TOKEN')) {
+            console.log(err);
+            const refreshToken = sessionStorage.getItem('token');
+            if (refreshToken) {
+                const result = await Axios.post('/auth/refresh', { refresh_token: JSON.parse(refreshToken)?.access_token });
+                if (result.data) {
+                    sessionStorage.setItem('token', JSON.stringify(result.data));
+                    return axios.request(error.config);
+                }
             }
-
-            break;
-        }
-        case 'POST':
-        case 'PATCH':
-            options.body = JSON.stringify(variables);
-            break;
-    }
-
-    const response = await fetch(requestUrl, options);
-
-    if (!response.ok) {
-        const errorBody = (await response.json()) as DirectusErrorBody;
-        if (errorBody && errorBody.errors && errorBody.errors.length > 0) {
-            throw new HTTPError(response.status, errorBody.errors.map(e => e.message).join(', '));
         }
 
-        throw new HTTPError(response.status, response.statusText);
+        if (error.response?.status === 500) {
+            return Promise.reject({ status: error.response.status, data: error.response.data });
+        }
+
+        return Promise.reject();
     }
+);
 
-    return response.json();
-};
+const apiGet = <T>(url: string, config?: AxiosRequestConfig) => Axios.get<T>(url, config && { params: config }).then(res => res.data);
+const apiPost = <T>(url: string, data: unknown, config?: AxiosRequestConfig) => Axios.post<T>(url, data, config && { params: config }).then(res => res.data);
+const apiPatch = <T>(url: string, data: unknown, config?: AxiosRequestConfig) => Axios.patch<T>(url, data, config && { params: config }).then(res => res.data);
+const apiDelete = async <T>(url: string, config?: AxiosRequestConfig) => Axios.delete<T>(url, config && { params: config });
 
-export default fetchData;
+export { apiGet, apiPost, apiPatch, apiDelete };

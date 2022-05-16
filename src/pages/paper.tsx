@@ -1,14 +1,14 @@
 import { Controller, useForm } from 'react-hook-form';
 import useSWR, { useSWRConfig } from 'swr';
-import { showNotification } from '@mantine/notifications';
 
-import fetchData from '@lib/api';
+import { apiDelete, apiPost } from '@lib/api';
+import { error, success } from '@lib/notification';
 
 import { Contract, FetchResult, Paper } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Button, NumberInput, Select, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, NumberInput, Select, Table, TextInput, Title } from '@mantine/core';
 
 import { TrashIcon } from '@heroicons/react/outline';
 
@@ -28,23 +28,21 @@ const Papers: React.FC = () => {
 
     const onSubmit = async (input: Paper) => {
         try {
-            await mutate<FetchResult<Contract>>(url, fetchData(url, input, 'POST'));
+            await mutate<FetchResult<Contract>>(url, apiPost(url, input));
 
-            showNotification({ message: 'Carta salvata con successo', color: 'green' });
+            success('Carta salvata con successo');
         } catch (e) {
-            const error = e as Error;
-            showNotification({ message: error.message, color: 'red' });
+            error(e);
         }
     };
 
     const remove = async (id: number) => {
         try {
-            await mutate<FetchResult<Contract>>(url, fetchData(`${url}/${id}`, undefined, 'DELETE'));
+            await mutate<FetchResult<Contract>>(url, apiDelete(`${url}/${id}`));
 
-            showNotification({ message: 'Carta eliminata con successo', color: 'green' });
+            success('Carta eliminata con successo');
         } catch (e) {
-            const error = e as Error;
-            showNotification({ message: error.message, color: 'red' });
+            error(e);
         }
     };
 
@@ -64,7 +62,17 @@ const Papers: React.FC = () => {
                         control={control}
                         rules={{ required: 'Le ore preventivate sono obbligatorie' }}
                         render={({ field, fieldState }) => (
-                            <NumberInput label="Grammatura" size="xl" variant="filled" className="ml-4" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                            <NumberInput
+                                label="Grammatura"
+                                size="xl"
+                                variant="filled"
+                                className="ml-4"
+                                required
+                                min={0}
+                                value={field.value}
+                                onChange={field.onChange}
+                                error={fieldState.error?.message}
+                            />
                         )}
                     />
 
@@ -101,27 +109,27 @@ const Papers: React.FC = () => {
                 </div>
             </form>
 
-            <Title order={2}  className="my-4">
+            <Title order={2} mt="xl">
                 Carte presenti
             </Title>
 
-            <table className="w-full table-auto">
+            <Table striped>
                 <thead>
                     <tr>
-                        <th className="px-4 py-2 text-left">Carta</th>
-                        <th className="px-4 py-2 text-left">Peso</th>
-                        <th className="px-4 py-2 text-left">Formato</th>
-                        <th className="px-4 py-2 text-left">Orientamento</th>
+                        <th className="px-4 py-2">Carta</th>
+                        <th className="px-4 py-2">Peso</th>
+                        <th className="px-4 py-2">Formato</th>
+                        <th className="px-4 py-2">Orientamento</th>
                         <th className="w-16" />
                     </tr>
                 </thead>
                 <tbody>
                     {papers?.data.map(p => (
-                        <tr key={p.id} className="bg-slate-100 even:bg-slate-200">
-                            <td className="px-4 py-2 text-left">{p.name}</td>
-                            <td className="px-4 py-2 text-left">{p.weight}gr</td>
-                            <td className="px-4 py-2 text-left">{p.format}</td>
-                            <td className="px-4 py-2 text-left">{p.orientation ? (p.orientation === 'long' ? 'Lato lungo' : 'Lato corto') : '-'}</td>
+                        <tr key={p.id}>
+                            <td className="px-4 py-2">{p.name}</td>
+                            <td className="px-4 py-2">{p.weight}gr</td>
+                            <td className="px-4 py-2">{p.format}</td>
+                            <td className="px-4 py-2">{p.orientation ? (p.orientation === 'long' ? 'Lato lungo' : 'Lato corto') : '-'}</td>
                             <td>
                                 <ActionIcon color="red" size="lg" onClick={() => remove(p.id as number)}>
                                     <TrashIcon />
@@ -130,7 +138,7 @@ const Papers: React.FC = () => {
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </Table>
         </Layout>
     );
 };

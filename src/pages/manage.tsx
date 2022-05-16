@@ -13,6 +13,7 @@ import Step2 from './step-2';
 import Step3 from './step-3';
 import Step4 from './step-4';
 import Step5 from './step-5';
+import Step6 from './step-6';
 
 const Manage: React.FC = () => {
     const { id } = useParams();
@@ -42,8 +43,11 @@ const Manage: React.FC = () => {
                 <Stepper.Step label="Avviamenti digitale" description="Definisci gli avviamenti per la stampa digitale">
                     <Step4 contract={contract?.data} queryFields={queryFields} />
                 </Stepper.Step>
-                <Stepper.Step label="Altri lavori" description="Cartotecnica, etc...">
+                <Stepper.Step label="Altri lavori" description="Cartotecnica, piega, taglio, etc...">
                     <Step5 contract={contract?.data} queryFields={queryFields} />
+                </Stepper.Step>
+                <Stepper.Step label="Anteprima" description="Visualizza e stampa">
+                    <Step6 contract={contract?.data} />
                 </Stepper.Step>
             </Stepper>
         </Layout>

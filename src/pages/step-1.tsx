@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import { useNavigate } from 'react-router-dom';
-import { showNotification } from '@mantine/notifications';
 
-import fetchData from '@lib/api';
+import { apiPatch, apiPost } from '@lib/api';
+import { error, success } from '@lib/notification';
 
 import { Contract, FetchResult } from 'types';
 
@@ -51,15 +51,14 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
         const url = `/items/contracts${contract?.id ? `/${contract.id}` : ''}`;
 
         try {
-            const result = await mutate<FetchResult<Contract>>(url, fetchData(url, input, contract?.id ? 'PATCH' : 'POST'));
-            showNotification({ message: 'Commessa salvata con successo', color: 'green' });
+            const result = await mutate<FetchResult<Contract>>(url, contract?.id ? apiPatch(url, input) : apiPost(url, input));
+            success('Commessa salvata con successo');
 
             if (!contract?.id) {
                 navigate(`/commesse/manage/${result?.data.id}`, { replace: true });
             }
         } catch (e) {
-            const error = e as Error;
-            showNotification({ message: error.message, color: 'red' });
+            error(e);
         }
     };
 
@@ -79,6 +78,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 size="xl"
                                 variant="filled"
                                 required
+                                min={1}
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={fieldState.error?.message}
@@ -162,7 +162,15 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                         )}
                     />
 
-                    <TextInput label="Agente" size="xl" variant="filled" className="ml-4 flex-grow" {...register('representative')} />
+                    <TextInput
+                        label="Agente"
+                        size="xl"
+                        variant="filled"
+                        className="ml-4 flex-grow"
+                        required
+                        {...register('representative', { required: "L'agente è obbligatorio" })}
+                        error={errors.representative?.message}
+                    />
                 </div>
 
                 <Controller
@@ -170,7 +178,17 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                     control={control}
                     rules={{ required: 'La quantità è obbligatoria' }}
                     render={({ field, fieldState }) => (
-                        <NumberInput label="Quantità" size="xl" variant="filled" className="mt-8 w-full" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                        <NumberInput
+                            label="Quantità"
+                            size="xl"
+                            variant="filled"
+                            className="mt-8 w-full"
+                            required
+                            min={1}
+                            value={field.value}
+                            onChange={field.onChange}
+                            error={fieldState.error?.message}
+                        />
                     )}
                 />
 

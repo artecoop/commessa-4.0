@@ -1,10 +1,11 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { showNotification } from '@mantine/notifications';
+
+import { error } from '@lib/notification';
 
 import { useAuth } from '../contexts/auth';
 
-import { Button, PasswordInput, TextInput } from '@mantine/core';
+import { Button, Center, Group, PasswordInput, TextInput, Title } from '@mantine/core';
 
 type Form = {
     username: string;
@@ -23,24 +24,27 @@ const Login: React.FC = () => {
         formState: { errors }
     } = useForm<Form>();
 
-    const returnUrl = searchParams.get('returnUrl') ?? '/';
+    const returnUrl = searchParams.get('returnUrl') ?? '/commesse';
 
     const onSubmit = async (values: Form) => {
         try {
             await login?.(values.username, values.password);
             navigate(returnUrl);
         } catch (e) {
-            const error = e as Error;
-            showNotification({ message: error.message, color: 'red' });
+            error(e);
         }
     };
 
     return (
-        <section>
+        <Center style={{ height: '100vh' }} p="xs">
             <div>
-                <div>
-                    <span>Accedi</span>
-                </div>
+                <Group mb="xl" position="center">
+                    <img src="/assets/logo.png" alt="Art&amp;Coop" title="Art&amp;Coop" style={{ width: '80px' }} />
+                    <Title order={1} ml="md">
+                        Art&amp;Coop Commessa
+                    </Title>
+                </Group>
+
                 <form noValidate onSubmit={handleSubmit(onSubmit)}>
                     <TextInput
                         label="Username"
@@ -68,7 +72,7 @@ const Login: React.FC = () => {
                     </Button>
                 </form>
             </div>
-        </section>
+        </Center>
     );
 };
 

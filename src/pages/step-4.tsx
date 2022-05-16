@@ -1,14 +1,15 @@
 import { Controller, useForm } from 'react-hook-form';
 import useSWR, { useSWRConfig } from 'swr';
-import { showNotification } from '@mantine/notifications';
 
-import fetchData from '@lib/api';
+import { apiPatch } from '@lib/api';
+import { error, success } from '@lib/notification';
 
 import { Contract, DigitalPrint, FetchResult, Paper } from 'types';
+import { digitalRunTypes } from 'values';
 
-import { ActionIcon, Button, NumberInput, Select, Switch, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, NumberInput, Select, Switch, Table, TextInput, Title } from '@mantine/core';
 
-import { TrashIcon } from '@heroicons/react/outline';
+import { PlusIcon, TrashIcon } from '@heroicons/react/outline';
 
 type Props = {
     contract?: Contract;
@@ -22,7 +23,6 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
         handleSubmit,
         register,
         control,
-        reset,
         formState: { errors }
     } = useForm<DigitalPrint>();
 
@@ -37,14 +37,15 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
 
         contract?.digital_prints?.push(input);
 
-        showNotification({ message: "Avviamento aggiunto all'elenco", color: 'green' });
+        success("Avviamento aggiunto all'elenco");
     };
 
     const removeDigitalPrint = async (id: number) => {
         const index = contract?.digital_prints?.findIndex(op => op.id === id);
         if (index !== undefined && index > -1) {
             contract?.digital_prints?.splice(index, 1);
-            showNotification({ message: "Avviamento rimosso all'elenco", color: 'green' });
+
+            success("Avviamento rimosso all'elenco");
         }
     };
 
@@ -52,12 +53,11 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
         const url = `/items/contracts/${contract?.id}`;
 
         try {
-            await mutate<FetchResult<Contract>>([url, queryFields], fetchData(url, contract, 'PATCH'));
+            await mutate<FetchResult<Contract>>([url, queryFields], apiPatch(url, contract));
 
-            showNotification({ message: 'Avviamenti salvati con successo', color: 'green' });
+            success('Avviamenti salvati con successo');
         } catch (e) {
-            const error = e as Error;
-            showNotification({ message: error.message, color: 'red' });
+            error(e);
         }
     };
 
@@ -65,13 +65,31 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
         <>
             <span className="text-xs font-semibold italic">* Campi obbligatori</span>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(addDigitalPrint)}>
-                <div className="flex">
+            <form noValidate className="mt-8 flex" onSubmit={handleSubmit(addDigitalPrint)}>
+                <div className="flex flex-grow">
+                    <Controller
+                        name="kind"
+                        control={control}
+                        rules={{ required: 'Il tipo è obbligatorio' }}
+                        render={({ field, fieldState }) => (
+                            <Select
+                                label="Tipo"
+                                size="xl"
+                                variant="filled"
+                                required
+                                value={field.value?.toString()}
+                                onChange={field.onChange}
+                                error={fieldState.error?.message}
+                                data={digitalRunTypes}
+                            />
+                        )}
+                    />
+
                     <TextInput
                         label="Descrizione"
                         size="xl"
                         variant="filled"
-                        className="flex-grow"
+                        className="ml-4 flex-grow"
                         required
                         {...register('description', { required: 'La descrizione è obbligatoria' })}
                         error={errors.description?.message}
@@ -105,21 +123,15 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         control={control}
                         rules={{ required: 'I fogli sono obbligatori' }}
                         render={({ field, fieldState }) => (
-                            <NumberInput label="Fogli" size="xl" variant="filled" className="ml-4" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                            <NumberInput label="Fogli" size="xl" variant="filled" className="ml-4" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
                         )}
                     />
                 </div>
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">
-                        Aggiungi
-                    </Button>
-                    <Button variant="outline" size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset(contract)}>
-                        Reset
-                    </Button>
-                    <Button variant="outline" size="xl" uppercase color="lime" className="ml-4 w-36" onClick={() => save()}>
-                        Salva
-                    </Button>
+                <div className="ml-8 flex items-end pb-2">
+                    <ActionIcon size="xl" color="blue" variant="outline" type="submit">
+                        <PlusIcon />
+                    </ActionIcon>
                 </div>
             </form>
 
@@ -129,23 +141,25 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         Avviamenti
                     </Title>
 
-                    <table className="w-full table-auto">
+                    <Table striped mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2 text-left">Descrizione</th>
-                                <th className="px-4 py-2 text-left">Colori</th>
-                                <th className="px-4 py-2 text-left">Carta</th>
-                                <th className="px-4 py-2 text-left">Fogli</th>
+                                <th className="px-4 py-2">Tipo</th>
+                                <th className="px-4 py-2">Descrizione</th>
+                                <th className="px-4 py-2">Colori</th>
+                                <th className="px-4 py-2">Carta</th>
+                                <th className="px-4 py-2">Fogli</th>
                                 <th className="w-16" />
                             </tr>
                         </thead>
                         <tbody>
                             {contract?.digital_prints?.map(p => (
-                                <tr key={p.id} className="bg-slate-100 even:bg-slate-200">
-                                    <td className="px-4 py-2 text-left">{p.description}</td>
-                                    <td className="px-4 py-2 text-left">{p.color ? 'SI' : 'NO'}</td>
-                                    <td className="px-4 py-2 text-left">{papers?.data.find(d => d.id === p.paper)?.name}</td>
-                                    <td className="px-4 py-2 text-left">{p.sheets}</td>
+                                <tr key={p.id}>
+                                    <td className="px-4 py-2">{digitalRunTypes.find(r => r.value === p.kind)?.label}</td>
+                                    <td className="px-4 py-2">{p.description}</td>
+                                    <td className="px-4 py-2">{p.color ? 'SI' : 'NO'}</td>
+                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === p.paper)?.name}</td>
+                                    <td className="px-4 py-2">{p.sheets}</td>
                                     <td>
                                         <ActionIcon color="red" size="lg" onClick={() => removeDigitalPrint(p.id as number)}>
                                             <TrashIcon />
@@ -154,7 +168,11 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </Table>
+
+                    <Button variant="outline" size="xl" uppercase color="lime" className="mt-8 w-full" onClick={() => save()}>
+                        Salva
+                    </Button>
                 </>
             )}
         </>
