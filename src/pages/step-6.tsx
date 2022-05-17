@@ -1,15 +1,18 @@
 import dayjs from 'dayjs';
 
-import { Contract } from 'types';
+import { Contract, FetchResult, Paper } from 'types';
 import { processings, offsetRunTypes, digitalRunTypes, varnishTypes } from 'values';
 
-import { SimpleGrid, Table, Title } from '@mantine/core';
+import { Divider, SimpleGrid, Table, Title } from '@mantine/core';
+import useSWR from 'swr';
 
 type Props = {
-    contract?: Contract;
+    contract: Contract;
 };
 
 const Step6: React.FC<Props> = ({ contract }: Props) => {
+    const { data: papers } = useSWR<FetchResult<Paper[]>>(['/items/paper', { sort: ['name'] }]);
+
     return contract ? (
         <>
             <Title order={1} mt="xl">
@@ -42,11 +45,16 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                 </div>
             </SimpleGrid>
 
-            {contract && contract.processings && contract?.processings?.filter(p => ['design', 'prepress'].includes(p.kind)).length > 0 && (
+            {/**
+             * --------------------------------------------------------------------------------------------------------------------------
+             *  Lavorazioni di grafica e prestampa
+             * --------------------------------------------------------------------------------------------------------------------------
+             */}
+            {contract.processings && contract.processings.filter(p => ['design', 'prepress'].includes(p.kind)).length > 0 && (
                 <>
-                    <Title order={3} mt="xl">
-                        Lavorazioni di grafica e prestampa
-                    </Title>
+                    <Divider my="xl" size="xl" color="blue" />
+
+                    <Title order={3}>Lavorazioni di grafica e prestampa</Title>
 
                     <Table striped mt="xl">
                         <thead>
@@ -58,7 +66,7 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {contract?.processings
+                            {contract.processings
                                 ?.filter(p => ['design', 'prepress'].includes(p.kind))
                                 ?.map(p => (
                                     <tr key={p.id}>
@@ -73,11 +81,16 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                 </>
             )}
 
-            {contract?.offset_prints && (
+            {/**
+             * --------------------------------------------------------------------------------------------------------------------------
+             *  Avviamenti offset
+             * --------------------------------------------------------------------------------------------------------------------------
+             */}
+            {contract.offset_prints && (
                 <>
-                    <Title order={3} mt="xl">
-                        Avviamenti offset
-                    </Title>
+                    <Divider my="xl" size="xl" color="blue" />
+
+                    <Title order={3}>Avviamenti offset</Title>
 
                     <Table striped mt="xl">
                         <thead>
@@ -87,30 +100,45 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                                 <th className="px-4 py-2">Pantoni</th>
                                 <th className="px-4 py-2">Verniciatura</th>
                                 <th className="px-4 py-2">Resa</th>
+                                <th className="px-4 py-2">Fogli</th>
                                 <th className="px-4 py-2">Carta</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {contract?.offset_prints?.map(p => (
-                                <tr key={p.id}>
-                                    <td className="px-4 py-2 font-bold">{offsetRunTypes.find(pr => pr.value === p.run_type)?.label}</td>
-                                    <td className="px-4 py-2">{p.colors?.join('')}</td>
-                                    <td className="px-4 py-2">{p.pantones?.map(pa => pa.name).join(', ')}</td>
-                                    <td className="px-4 py-2">{varnishTypes.find(pr => pr.value === p.varnish)?.label}</td>
-                                    <td className="px-4 py-2">{p.yield}</td>
-                                    <td className="px-4 py-2">{p.paper}</td>
+                            {contract.offset_prints.map(op => (
+                                <tr key={op.id}>
+                                    <td className="px-4 py-2 font-bold">{offsetRunTypes.find(pr => pr.value === op.run_type)?.label}</td>
+                                    <td className="px-4 py-2">{op.colors?.join('')}</td>
+                                    <td className="px-4 py-2">{op.pantones?.map(pa => pa.name).join(', ')}</td>
+                                    <td className="px-4 py-2">{varnishTypes.find(pr => pr.value === op.varnish)?.label}</td>
+                                    <td className="px-4 py-2">{op.yield}</td>
+                                    <td className="px-4 py-2">{op.run_type !== 'v' ? Math.ceil(contract.quantity / op.yield) : '-'}</td>
+                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === op.paper)?.name}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
+
+                    <Title order={3} mt="xl">
+                        Lastre:&nbsp;
+                        {contract.offset_prints.flatMap(op => op.colors).length +
+                            contract.offset_prints.flatMap(op => op.pantones).length +
+                            contract.offset_prints.flatMap(op => op.varnish).filter(v => v === 'reserve').length}
+                        &nbsp;- Fogli:&nbsp;{contract.offset_prints.filter(op => op.run_type !== 'v').reduce((acc, curr) => acc + Math.ceil(contract.quantity / curr.yield), 0)}
+                    </Title>
                 </>
             )}
 
-            {contract?.digital_prints && (
+            {/**
+             * --------------------------------------------------------------------------------------------------------------------------
+             *  Avviamenti digitale
+             * --------------------------------------------------------------------------------------------------------------------------
+             */}
+            {contract.digital_prints && (
                 <>
-                    <Title order={3} mt="xl">
-                        Avviamenti digitali
-                    </Title>
+                    <Divider my="xl" size="xl" color="blue" />
+
+                    <Title order={3}>Avviamenti digitali</Title>
 
                     <Table striped mt="xl">
                         <thead>
@@ -123,13 +151,13 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {contract?.digital_prints?.map(p => (
-                                <tr key={p.id}>
-                                    <td className="px-4 py-2 font-bold">{digitalRunTypes.find(pr => pr.value === p.kind)?.label}</td>
-                                    <td className="px-4 py-2">{p.description}</td>
-                                    <td className="px-4 py-2">{p.color ? 'Colori' : 'B/N'}</td>
-                                    <td className="px-4 py-2">{p.sheets}</td>
-                                    <td className="px-4 py-2">{p.paper}</td>
+                            {contract.digital_prints.map(dp => (
+                                <tr key={dp.id}>
+                                    <td className="px-4 py-2 font-bold">{digitalRunTypes.find(pr => pr.value === dp.kind)?.label}</td>
+                                    <td className="px-4 py-2">{dp.description}</td>
+                                    <td className="px-4 py-2">{dp.color ? 'Colori' : 'B/N'}</td>
+                                    <td className="px-4 py-2">{dp.sheets}</td>
+                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === dp.paper)?.name}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -137,11 +165,16 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                 </>
             )}
 
-            {contract && contract.processings && contract?.processings?.filter(p => !['design', 'prepress'].includes(p.kind)).length > 0 && (
+            {/**
+             * --------------------------------------------------------------------------------------------------------------------------
+             *  Lavorazioni post stampa
+             * --------------------------------------------------------------------------------------------------------------------------
+             */}
+            {contract.processings && contract.processings.filter(p => !['design', 'prepress'].includes(p.kind)).length > 0 && (
                 <>
-                    <Title order={3} mt="xl">
-                        Lavorazioni post stampa
-                    </Title>
+                    <Divider my="xl" size="xl" color="blue" />
+
+                    <Title order={3}>Lavorazioni post stampa</Title>
 
                     <Table striped mt="xl">
                         <thead>
@@ -154,9 +187,9 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {contract?.processings
-                                ?.filter(p => !['design', 'prepress'].includes(p.kind))
-                                ?.map(p => (
+                            {contract.processings
+                                .filter(p => !['design', 'prepress'].includes(p.kind))
+                                .map(p => (
                                     <tr key={p.id}>
                                         <td className="px-4 py-2 font-bold">{processings.find(pr => pr.value === p.kind)?.label}</td>
                                         <td className="px-4 py-2">{p.setup_hours}</td>

@@ -26,8 +26,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
 
     useEffect(() => {
         if (contract) {
-            const filteredProcessing = contract.processings?.filter(p => !['design', 'prepress'].includes(p.kind));
-            setValue('processings', filteredProcessing ?? undefined);
+            setValue('processings', contract.processings ?? undefined);
         }
     }, [contract, setValue]);
 
@@ -42,6 +41,12 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
             success('Lavorazioni salvate con successo');
         } catch (e) {
             error(e);
+        }
+    };
+
+    const removeProcessing = (i: number) => {
+        if (confirm('Sei sicuro di voler eliminare questa lavorazione?')) {
+            remove(i);
         }
     };
 
@@ -135,7 +140,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     <Textarea label="Note" size="xl" className="mt-4" variant="filled" {...register(`processings.${i}.note` as const)} />
                                 </div>
 
-                                <ActionIcon variant="outline" size="xl" color="red" className="ml-4" onClick={() => remove(i)}>
+                                <ActionIcon variant="outline" size="xl" color="red" className="ml-4" onClick={() => removeProcessing(i)}>
                                     <TrashIcon />
                                 </ActionIcon>
                             </div>

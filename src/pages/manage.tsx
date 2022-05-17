@@ -18,7 +18,7 @@ import Step6 from './step-6';
 const Manage: React.FC = () => {
     const { id } = useParams();
 
-    const queryFields = { fields: ['*', 'processings.*', 'offset_prints.*', 'digital_prints.*'] };
+    const queryFields = { fields: ['*', 'processings.*', 'processings.process_definition.*', 'press.*', 'press.paper.*', 'press.run_type.*', 'press.varnish.*'] };
 
     const { data: contract } = useSWR<FetchResult<Contract>>(id ? [`/items/contracts/${id}`, queryFields] : null);
 

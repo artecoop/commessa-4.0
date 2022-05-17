@@ -1,13 +1,12 @@
 import { Fragment, useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { useSWRConfig } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 
 import { error, success } from '@lib/notification';
 
 import { apiPatch } from '@lib/api';
 
-import { processings } from 'values';
-import { Contract, FetchResult } from 'types';
+import { Contract, FetchResult, ProcessDefinition } from 'types';
 
 import { ActionIcon, Button, NumberInput, Select, TextInput } from '@mantine/core';
 
@@ -19,6 +18,8 @@ type Props = {
 };
 
 const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
+    const { data: processes } = useSWR<FetchResult<ProcessDefinition[]>>(['/items/process_definition', { filter: { pre: true } }]);
+
     const {
         handleSubmit,
         register,
@@ -52,6 +53,12 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
         }
     };
 
+    const removeProcessing = (i: number) => {
+        if (confirm('Sei sicuro di voler eliminare questa lavorazione?')) {
+            remove(i);
+        }
+    };
+
     return (
         <>
             <span className="text-xs font-semibold italic">* Campi obbligatori</span>
@@ -63,12 +70,13 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
             </div>
 
             <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
-                {fields.map((v, i) => (
-                    <Fragment key={v.id}>
-                        {[undefined, 'design', 'prepress'].includes(v.kind) && (
+                {fields
+                    .filter(f => !f.process_definition || f.process_definition.pre)
+                    .map((v, i) => (
+                        <Fragment key={v.id}>
                             <div className="mb-4 flex">
                                 <Controller
-                                    name={`processings.${i}.kind`}
+                                    name={`processings.${i}.process_definition`}
                                     control={control}
                                     rules={{ required: 'La lavorazione è obbligatoria' }}
                                     render={({ field, fieldState }) => (
@@ -77,10 +85,10 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                             size="xl"
                                             variant="filled"
                                             required
-                                            value={field.value}
+                                            value={field.value?.id?.toString()}
                                             onChange={field.onChange}
                                             error={fieldState.error?.message}
-                                            data={processings.filter(p => ['design', 'prepress'].includes(p.value))}
+                                            data={processes?.data.map(p => ({ value: (p.id as number).toString(), label: p.name })) ?? []}
                                         />
                                     )}
                                 />
@@ -116,33 +124,14 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     )}
                                 />
 
-                                <Controller
-                                    name={`processings.${i}.working_hours`}
-                                    control={control}
-                                    render={({ field }) => (
-                                        <NumberInput
-                                            label="Ore lavorate"
-                                            size="xl"
-                                            variant="filled"
-                                            className="ml-4"
-                                            min={0.5}
-                                            precision={1}
-                                            step={0.5}
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                        />
-                                    )}
-                                />
-
                                 <div className="ml-8 flex items-end pb-2">
-                                    <ActionIcon variant="outline" size="xl" color="red" onClick={() => remove(i)}>
+                                    <ActionIcon variant="outline" size="xl" color="red" onClick={() => removeProcessing(i)}>
                                         <TrashIcon />
                                     </ActionIcon>
                                 </div>
                             </div>
-                        )}
-                    </Fragment>
-                ))}
+                        </Fragment>
+                    ))}
 
                 <div className="mt-4 flex">
                     <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">

@@ -51,39 +51,32 @@ export type Contract = {
     estimate?: string;
     estimate_date?: Date;
     representative: string;
-    quantity?: number;
+    quantity: number;
     processings?: Processing[];
-    offset_prints?: OffsetPrint[];
-    digital_prints?: DigitalPrint[];
+    press?: Press[];
 };
 
 export type Processing = {
     id?: number;
+    process_definition: ProcessDefinition;
     name: string;
     setup_hours?: number;
     estimate_hours: number;
-    working_hours: number;
-    kind: string;
+    working_hours?: number;
     note?: string;
 };
 
-export type OffsetPrint = {
+export type Press = {
     id?: number;
-    run_type: string;
+    run_type: RunType;
+    description?: string;
     colors?: string[];
     pantones?: Pantone[];
-    varnish?: string;
+    varnish?: Varnish;
     yield: number;
-    paper: number;
-};
-
-export type DigitalPrint = {
-    id?: number;
-    kind: string;
-    description: string;
-    color: boolean;
-    sheets: number;
-    paper: number;
+    sheets?: number;
+    consumed_sheets?: number;
+    paper: Paper;
 };
 
 export type Paper = {
@@ -96,4 +89,23 @@ export type Paper = {
 
 export type Pantone = {
     name: string;
+};
+
+export type ProcessDefinition = {
+    id?: number;
+    name: string;
+    pre: boolean;
+    special: boolean;
+};
+
+export type RunType = {
+    id?: number;
+    name: string;
+    kind: 'offset' | 'digital';
+};
+
+export type Varnish = {
+    id?: number;
+    name: string;
+    add_plate: boolean;
 };

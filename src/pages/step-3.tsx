@@ -4,8 +4,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import { apiPatch } from '@lib/api';
 import { error, success } from '@lib/notification';
 
-import { Contract, FetchResult, OffsetPrint, Paper } from 'types';
-import { offsetRunTypes, varnishTypes } from 'values';
+import { Contract, FetchResult, Press, Paper, Varnish, RunType } from 'types';
 
 import { ActionIcon, Button, Checkbox, CheckboxGroup, NumberInput, Select, Table, TextInput, Title } from '@mantine/core';
 
@@ -16,40 +15,64 @@ type Props = {
     queryFields: unknown;
 };
 
+type Form = Omit<Press, 'run_type' | 'paper' | 'varnish'> & {
+    run_type: string;
+    paper: string;
+    varnish: string;
+};
+
 const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
     const { data: papers } = useSWR<FetchResult<Paper[]>>(['/items/paper', { sort: ['name'] }]);
+    const { data: runTypes } = useSWR<FetchResult<RunType[]>>(['/items/run_type', { filter: { kind: 'offset' } }]);
+    const { data: varnishes } = useSWR<FetchResult<Varnish[]>>('/items/varnish');
 
     const {
         handleSubmit,
         register,
         control,
         formState: { errors }
-    } = useForm<OffsetPrint>();
+    } = useForm<Form>();
 
     const { fields, append, remove } = useFieldArray({
         control,
         name: 'pantones'
     });
 
+    const removePantone = (i: number) => {
+        if (confirm('Sei sicuro di voler eliminare questo pantone?')) {
+            remove(i);
+        }
+    };
+
     const { mutate } = useSWRConfig();
 
-    const addOffsetPrint = (input: OffsetPrint) => {
-        input.paper = +input.paper;
+    const addOffsetPrint = (input: Form) => {
+        const { run_type, paper, varnish, ...rest } = input;
 
-        if (contract && !contract.offset_prints) {
-            contract.offset_prints = new Array<OffsetPrint>();
+        const parsed = {
+            id: Math.round(Math.random() * 9999), //temporary
+            run_type: runTypes?.data.find(r => r.id === +run_type),
+            paper: papers?.data.find(p => p.id === +paper),
+            varnish: varnishes?.data.find(v => v.id === +varnish),
+            ...rest
+        } as Press;
+
+        if (contract && !contract.press) {
+            contract.press = new Array<Press>();
         }
 
-        contract?.offset_prints?.push(input);
+        contract?.press?.push(parsed);
 
         success("Avviamento aggiunto all'elenco");
     };
 
     const removeOffsetPrint = async (id: number) => {
-        const index = contract?.offset_prints?.findIndex(op => op.id === id);
-        if (index !== undefined && index > -1) {
-            contract?.offset_prints?.splice(index, 1);
-            success("Avviamento rimosso all'elenco");
+        if (confirm('Sei sicuro di voler eliminare questo avviamento?')) {
+            const index = contract?.press?.findIndex(p => p.id === id);
+            if (index !== undefined && index > -1) {
+                contract?.press?.splice(index, 1);
+                success("Avviamento rimosso all'elenco");
+            }
         }
     };
 
@@ -76,7 +99,16 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         control={control}
                         rules={{ required: 'Il tipo di avviamento è obbligatorio' }}
                         render={({ field, fieldState }) => (
-                            <Select label="Avviamento" size="xl" variant="filled" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} data={offsetRunTypes} />
+                            <Select
+                                label="Avviamento"
+                                size="xl"
+                                variant="filled"
+                                required
+                                value={field.value}
+                                onChange={field.onChange}
+                                error={fieldState.error?.message}
+                                data={runTypes?.data.map(r => ({ value: r.id?.toString() || '', label: r.name })) ?? []}
+                            />
                         )}
                     />
 
@@ -90,7 +122,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 size="xl"
                                 variant="filled"
                                 required
-                                value={field.value?.toString()}
+                                value={field.value}
                                 onChange={field.onChange}
                                 error={fieldState.error?.message}
                                 data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: p.name })) || []}
@@ -123,7 +155,17 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     <Controller
                         name="varnish"
                         control={control}
-                        render={({ field }) => <Select label="Vernice" size="xl" variant="filled" className="ml-4" value={field.value} onChange={field.onChange} data={varnishTypes} />}
+                        render={({ field }) => (
+                            <Select
+                                label="Vernice"
+                                size="xl"
+                                variant="filled"
+                                className="ml-4"
+                                value={field.value}
+                                onChange={field.onChange}
+                                data={varnishes?.data.map(r => ({ value: (r.id as number).toString(), label: r.name })) ?? []}
+                            />
+                        )}
                     />
                 </div>
 
@@ -146,7 +188,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 error={errors.pantones?.[i].name?.message}
                             />
 
-                            <ActionIcon variant="outline" size="xl" color="red" className="ml-2 mb-2" onClick={() => remove(i)}>
+                            <ActionIcon variant="outline" size="xl" color="red" className="ml-2 mb-2" onClick={() => removePantone(i)}>
                                 <TrashIcon />
                             </ActionIcon>
                         </div>
@@ -160,7 +202,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 </div>
             </form>
 
-            {contract?.offset_prints && contract.offset_prints.length > 0 && (
+            {contract?.press && contract.press.filter(p => p.run_type?.kind === 'offset').length > 0 && (
                 <>
                     <Title order={1} className="my-4">
                         Avviamenti
@@ -174,25 +216,27 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <th className="px-4 py-2">Colore</th>
                                 <th className="px-4 py-2">Pantoni</th>
                                 <th className="px-4 py-2">Vernice</th>
-                                <th className="w-16" />
+                                <th className="w-12" />
                             </tr>
                         </thead>
                         <tbody>
-                            {contract?.offset_prints?.map(p => (
-                                <tr key={p.id}>
-                                    <td className="px-4 py-2">{offsetRunTypes.find(r => r.value === p.run_type)?.label}</td>
-                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === p.paper)?.name}</td>
-                                    <td className="px-4 py-2">{p.yield}</td>
-                                    <td className="px-4 py-2">{p.colors?.map(c => c.toUpperCase())}</td>
-                                    <td className="px-4 py-2">{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
-                                    <td className="px-4 py-2">{p.varnish ? (p.varnish === 'fulltable' ? 'Tavola piena' : 'Riserva') : '-'}</td>
-                                    <td>
-                                        <ActionIcon color="red" size="lg" onClick={() => removeOffsetPrint(p.id as number)}>
-                                            <TrashIcon />
-                                        </ActionIcon>
-                                    </td>
-                                </tr>
-                            ))}
+                            {contract?.press
+                                ?.filter(p => p.run_type?.kind === 'offset')
+                                .map(p => (
+                                    <tr key={p.id}>
+                                        <td className="px-4 py-2">{p.run_type.name}</td>
+                                        <td className="px-4 py-2">{p.paper.name}</td>
+                                        <td className="px-4 py-2">{p.yield}</td>
+                                        <td className="px-4 py-2">{p.colors?.map(c => c.toUpperCase())}</td>
+                                        <td className="px-4 py-2">{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
+                                        <td className="px-4 py-2">{p.varnish?.name ?? '-'}</td>
+                                        <td>
+                                            <ActionIcon color="red" size="lg" onClick={() => removeOffsetPrint(p.id as number)}>
+                                                <TrashIcon />
+                                            </ActionIcon>
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </Table>
 

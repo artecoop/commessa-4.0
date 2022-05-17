@@ -4,8 +4,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import { apiPatch } from '@lib/api';
 import { error, success } from '@lib/notification';
 
-import { Contract, DigitalPrint, FetchResult, Paper } from 'types';
-import { digitalRunTypes } from 'values';
+import { Contract, Press, FetchResult, Paper, RunType } from 'types';
 
 import { ActionIcon, Button, NumberInput, Select, Switch, Table, TextInput, Title } from '@mantine/core';
 
@@ -16,36 +15,56 @@ type Props = {
     queryFields: unknown;
 };
 
+type Form = {
+    run_type: string;
+    description: string;
+    color: boolean;
+    paper: string;
+    yield: number;
+    sheets: number;
+};
+
 const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
     const { data: papers } = useSWR<FetchResult<Paper[]>>(['/items/paper', { sort: ['name'] }]);
+    const { data: runTypes } = useSWR<FetchResult<RunType[]>>(['/items/run_type', { filter: { kind: 'digital' } }]);
 
     const {
         handleSubmit,
         register,
         control,
         formState: { errors }
-    } = useForm<DigitalPrint>();
+    } = useForm<Form>();
 
     const { mutate } = useSWRConfig();
 
-    const addDigitalPrint = (input: DigitalPrint) => {
-        input.paper = +input.paper;
-
-        if (contract && !contract.digital_prints) {
-            contract.digital_prints = new Array<DigitalPrint>();
+    const addDigitalPrint = (input: Form) => {
+        if (contract && !contract.press) {
+            contract.press = new Array<Press>();
         }
 
-        contract?.digital_prints?.push(input);
+        const { run_type, paper, color, ...rest } = input;
+
+        const parsed = {
+            id: Math.round(Math.random() * 9999), //temporary
+            run_type: runTypes?.data.find(r => r.id === +run_type),
+            colors: color ? ['c', 'm', 'y', 'k'] : ['k'],
+            paper: papers?.data.find(p => p.id === +paper),
+            ...rest
+        } as Press;
+
+        contract?.press?.push(parsed);
 
         success("Avviamento aggiunto all'elenco");
     };
 
     const removeDigitalPrint = async (id: number) => {
-        const index = contract?.digital_prints?.findIndex(op => op.id === id);
-        if (index !== undefined && index > -1) {
-            contract?.digital_prints?.splice(index, 1);
+        if (confirm('Sei sicuro di voler eliminare questo avviamento?')) {
+            const index = contract?.press?.findIndex(p => p.id === id);
+            if (index !== undefined && index > -1) {
+                contract?.press?.splice(index, 1);
 
-            success("Avviamento rimosso all'elenco");
+                success("Avviamento rimosso dall'elenco");
+            }
         }
     };
 
@@ -68,19 +87,19 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
             <form noValidate className="mt-8 flex" onSubmit={handleSubmit(addDigitalPrint)}>
                 <div className="flex flex-grow">
                     <Controller
-                        name="kind"
+                        name="run_type"
                         control={control}
-                        rules={{ required: 'Il tipo è obbligatorio' }}
+                        rules={{ required: 'Il tipo di avviamento è obbligatorio' }}
                         render={({ field, fieldState }) => (
                             <Select
-                                label="Tipo"
+                                label="Avviamento"
                                 size="xl"
                                 variant="filled"
                                 required
-                                value={field.value?.toString()}
+                                value={field.value}
                                 onChange={field.onChange}
                                 error={fieldState.error?.message}
-                                data={digitalRunTypes}
+                                data={runTypes?.data.map(r => ({ value: r.id?.toString() || '', label: r.name })) ?? []}
                             />
                         )}
                     />
@@ -119,6 +138,15 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     />
 
                     <Controller
+                        name="yield"
+                        control={control}
+                        rules={{ required: 'La resa è obbligatoria' }}
+                        render={({ field, fieldState }) => (
+                            <NumberInput label="Resa" size="xl" variant="filled" className="ml-4" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                        )}
+                    />
+
+                    <Controller
                         name="sheets"
                         control={control}
                         rules={{ required: 'I fogli sono obbligatori' }}
@@ -135,7 +163,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 </div>
             </form>
 
-            {contract?.digital_prints && contract.digital_prints.length > 0 && (
+            {contract?.press && contract.press.filter(p => p.run_type?.kind === 'digital').length > 0 && (
                 <>
                     <Title order={1} className="my-4">
                         Avviamenti
@@ -148,25 +176,29 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <th className="px-4 py-2">Descrizione</th>
                                 <th className="px-4 py-2">Colori</th>
                                 <th className="px-4 py-2">Carta</th>
+                                <th className="px-4 py-2">Resa</th>
                                 <th className="px-4 py-2">Fogli</th>
                                 <th className="w-16" />
                             </tr>
                         </thead>
                         <tbody>
-                            {contract?.digital_prints?.map(p => (
-                                <tr key={p.id}>
-                                    <td className="px-4 py-2">{digitalRunTypes.find(r => r.value === p.kind)?.label}</td>
-                                    <td className="px-4 py-2">{p.description}</td>
-                                    <td className="px-4 py-2">{p.color ? 'SI' : 'NO'}</td>
-                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === p.paper)?.name}</td>
-                                    <td className="px-4 py-2">{p.sheets}</td>
-                                    <td>
-                                        <ActionIcon color="red" size="lg" onClick={() => removeDigitalPrint(p.id as number)}>
-                                            <TrashIcon />
-                                        </ActionIcon>
-                                    </td>
-                                </tr>
-                            ))}
+                            {contract?.press
+                                ?.filter(p => p.run_type?.kind === 'digital')
+                                ?.map(p => (
+                                    <tr key={p.id}>
+                                        <td className="px-4 py-2">{p.run_type.name}</td>
+                                        <td className="px-4 py-2">{p.description}</td>
+                                        <td className="px-4 py-2">{p.colors ? 'SI' : 'NO'}</td>
+                                        <td className="px-4 py-2">{p.paper.name}</td>
+                                        <td className="px-4 py-2">{p.yield}</td>
+                                        <td className="px-4 py-2">{p.sheets}</td>
+                                        <td>
+                                            <ActionIcon color="red" size="lg" onClick={() => removeDigitalPrint(p.id as number)}>
+                                                <TrashIcon />
+                                            </ActionIcon>
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </Table>
 

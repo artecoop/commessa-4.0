@@ -100,7 +100,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 inputFormat="DD/MM/YYYY"
                                 className="ml-4"
                                 icon={<CalendarIcon className="icon-field-left" />}
-                                value={field.value}
+                                value={field.value && new Date(field.value)}
                                 defaultValue={new Date()}
                                 onChange={field.onChange}
                                 error={fieldState.error?.message}
@@ -137,7 +137,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 variant="filled"
                                 inputFormat="DD/MM/YYYY"
                                 icon={<CalendarIcon className="icon-field-left" />}
-                                value={field.value}
+                                value={field.value && new Date(field.value)}
                                 onChange={field.onChange}
                             />
                         )}
@@ -156,7 +156,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 inputFormat="DD/MM/YYYY"
                                 className="ml-4"
                                 icon={<CalendarIcon className="icon-field-left" />}
-                                value={field.value}
+                                value={field.value && new Date(field.value)}
                                 onChange={field.onChange}
                             />
                         )}

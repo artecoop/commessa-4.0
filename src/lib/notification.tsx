@@ -20,7 +20,7 @@ const error = (e: unknown) => {
 };
 
 const success = (message: string) => {
-    show('Successo', message, 'green', <CheckIcon width={18} height={18} />);
+    show('OK!', message, 'green', <CheckIcon width={18} height={18} />);
 };
 
 const info = (message: string) => {

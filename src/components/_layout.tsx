@@ -1,8 +1,8 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton } from '@mantine/core';
-import { CubeTransparentIcon, HomeIcon, PaperAirplaneIcon } from '@heroicons/react/outline';
+import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton, Divider } from '@mantine/core';
+import { BriefcaseIcon, ColorSwatchIcon, CubeTransparentIcon, PaperAirplaneIcon, RefreshIcon } from '@heroicons/react/outline';
 
 type LayoutProps = {
     title?: string;
@@ -17,9 +17,13 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
         document.title = `${props.title} - Art&Coop Commessa`;
     });
 
-    const menu = [
-        { icon: <CubeTransparentIcon />, color: 'indigo', label: 'Commesse', link: '/commesse' },
-        { icon: <PaperAirplaneIcon />, color: 'orange', label: 'Carta', link: '/papers' }
+    const menu = [{ icon: <CubeTransparentIcon />, color: 'indigo', label: 'Commesse', link: '/commesse' }];
+
+    const ancillaries = [
+        { icon: <PaperAirplaneIcon />, color: 'orange', label: 'Carta', link: '/papers' },
+        { icon: <BriefcaseIcon />, color: 'pink', label: 'Lavorazioni', link: '/processings' },
+        { icon: <RefreshIcon />, color: 'green', label: 'Tipi di avviamento', link: '/run-types' },
+        { icon: <ColorSwatchIcon />, color: 'violet', label: 'Vernice', link: '/varnish' }
     ];
 
     return (
@@ -44,6 +48,29 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
             navbar={
                 <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 200, lg: 300 }}>
                     {menu.map(m => (
+                        <UnstyledButton
+                            key={m.label}
+                            sx={theme => ({
+                                display: 'block',
+                                width: '100%',
+                                padding: theme.spacing.xs,
+                                borderRadius: theme.radius.sm
+                            })}
+                            onClick={() => navigate(m.link)}
+                        >
+                            <Group>
+                                <ThemeIcon color={m.color} variant="light">
+                                    {m.icon}
+                                </ThemeIcon>
+
+                                <Text size="sm">{m.label}</Text>
+                            </Group>
+                        </UnstyledButton>
+                    ))}
+
+                    <Divider label="Definizioni" labelPosition="center" />
+
+                    {ancillaries.map(m => (
                         <UnstyledButton
                             key={m.label}
                             sx={theme => ({

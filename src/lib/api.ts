@@ -27,23 +27,28 @@ Axios.interceptors.response.use(
         return Promise.resolve(response);
     },
     async error => {
+      /*   const originalRequest = error.config;
+
         const err = error.response.data as DirectusErrorBody;
 
-        if (error.response?.status === 403 && err.errors.map(p => p.extensions.code).includes('INVALID_TOKEN')) {
-            console.log(err);
-            const refreshToken = sessionStorage.getItem('token');
-            if (refreshToken) {
-                const result = await Axios.post('/auth/refresh', { refresh_token: JSON.parse(refreshToken)?.access_token });
-                if (result.data) {
-                    sessionStorage.setItem('token', JSON.stringify(result.data));
-                    return axios.request(error.config);
+        if (!originalRequest.url.endsWith('/auth/refresh') && error.response?.status === 403 && err.errors.map(p => p.extensions.code).includes('INVALID_TOKEN')) {
+            const storedTokens = sessionStorage.getItem('token');
+            if (storedTokens) {
+                try {
+                    const result = await axios.create({ baseURL: 'https://36mmwjow.directus.app' }).post('/auth/refresh', { refresh_token: JSON.parse(storedTokens)?.refresh_token });
+                    if (result.data) {
+                        sessionStorage.setItem('token', JSON.stringify(result.data));
+                        return Axios.request(originalRequest);
+                    }
+                } catch (e) {
+                    return Promise.reject();
                 }
             }
         }
 
         if (error.response?.status === 500) {
             return Promise.reject({ status: error.response.status, data: error.response.data });
-        }
+        } */
 
         return Promise.reject();
     }
