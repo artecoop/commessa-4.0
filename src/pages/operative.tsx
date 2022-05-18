@@ -56,7 +56,7 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
 
                     <Title order={3}>Lavorazioni di grafica e prestampa</Title>
 
-                    <Table striped mt="xl">
+                    <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Tipo</th>
@@ -92,7 +92,7 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
 
                     <Title order={3}>Avviamenti offset</Title>
 
-                    <Table striped mt="xl">
+                    <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Tipo</th>
@@ -140,7 +140,7 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
 
                     <Title order={3}>Avviamenti digitali</Title>
 
-                    <Table striped mt="xl">
+                    <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Tipo</th>
@@ -176,7 +176,7 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
 
                     <Title order={3}>Lavorazioni post stampa</Title>
 
-                    <Table striped mt="xl">
+                    <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
                                 <th className="w-32 px-4 py-2">Tipo</th>

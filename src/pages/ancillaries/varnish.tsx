@@ -80,7 +80,7 @@ const VarnishView: React.FC = () => {
                         Verniciature presenti
                     </Title>
 
-                    <Table striped>
+                    <Table striped fontSize="lg">
                         <thead>
                             <tr>
                                 <th className="w-40 px-4 py-2">Aggiunge lastra?</th>

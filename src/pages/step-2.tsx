@@ -24,7 +24,6 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
         handleSubmit,
         register,
         control,
-        reset,
         setValue,
         formState: { errors }
     } = useForm<Contract>();
@@ -63,84 +62,75 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
         <>
             <span className="text-xs font-semibold italic">* Campi obbligatori</span>
 
-            <div className="mt-8">
-                <Button leftIcon={<PlusIcon className="icon-field-left" />} variant="outline" color="green" uppercase onClick={() => append({})}>
-                    Aggiungi lavorazione
-                </Button>
-            </div>
-
             <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
                 {fields
                     .filter(f => !f.process_definition || f.process_definition.pre)
                     .map((v, i) => (
-                        <Fragment key={v.id}>
-                            <div className="mb-4 flex">
-                                <Controller
-                                    name={`processings.${i}.process_definition`}
-                                    control={control}
-                                    rules={{ required: 'La lavorazione è obbligatoria' }}
-                                    render={({ field, fieldState }) => (
-                                        <Select
-                                            label="Lavorazione"
-                                            size="xl"
-                                            variant="filled"
-                                            required
-                                            value={field.value?.id?.toString()}
-                                            onChange={field.onChange}
-                                            error={fieldState.error?.message}
-                                            data={processes?.data.map(p => ({ value: (p.id as number).toString(), label: p.name })) ?? []}
-                                        />
-                                    )}
-                                />
+                        <div key={v.id} className="mb-4 flex">
+                            <Controller
+                                name={`processings.${i}.process_definition`}
+                                control={control}
+                                rules={{ required: 'La lavorazione è obbligatoria' }}
+                                render={({ field, fieldState }) => (
+                                    <Select
+                                        label="Lavorazione"
+                                        size="xl"
+                                        variant="filled"
+                                        required
+                                        value={field.value?.id?.toString()}
+                                        onChange={field.onChange}
+                                        error={fieldState.error?.message}
+                                        data={processes?.data.map(p => ({ value: (p.id as number).toString(), label: p.name })) ?? []}
+                                    />
+                                )}
+                            />
 
-                                <TextInput
-                                    label="Nome lavorazione"
-                                    size="xl"
-                                    variant="filled"
-                                    className="ml-4 flex-grow"
-                                    required
-                                    {...register(`processings.${i}.name` as const, { required: 'Il nome lavorazione è obbligatorio' })}
-                                    error={errors.processings?.[i]?.name?.message}
-                                />
+                            <TextInput
+                                label="Nome lavorazione"
+                                size="xl"
+                                variant="filled"
+                                className="ml-4 flex-grow"
+                                required
+                                {...register(`processings.${i}.name` as const, { required: 'Il nome lavorazione è obbligatorio' })}
+                                error={errors.processings?.[i]?.name?.message}
+                            />
 
-                                <Controller
-                                    name={`processings.${i}.estimate_hours`}
-                                    control={control}
-                                    rules={{ required: 'Le ore preventivate sono obbligatorie' }}
-                                    render={({ field, fieldState }) => (
-                                        <NumberInput
-                                            label="Ore preventivate"
-                                            size="xl"
-                                            variant="filled"
-                                            className="ml-4"
-                                            required
-                                            min={0}
-                                            precision={1}
-                                            step={0.5}
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            error={fieldState.error?.message}
-                                        />
-                                    )}
-                                />
+                            <Controller
+                                name={`processings.${i}.estimate_hours`}
+                                control={control}
+                                rules={{ required: 'Le ore preventivate sono obbligatorie' }}
+                                render={({ field, fieldState }) => (
+                                    <NumberInput
+                                        label="Ore preventivate"
+                                        size="xl"
+                                        variant="filled"
+                                        className="ml-4"
+                                        required
+                                        min={0}
+                                        precision={1}
+                                        step={0.5}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        error={fieldState.error?.message}
+                                    />
+                                )}
+                            />
 
-                                <div className="ml-8 flex items-end pb-2">
-                                    <ActionIcon variant="outline" size="xl" color="red" onClick={() => removeProcessing(i)}>
-                                        <TrashIcon />
-                                    </ActionIcon>
-                                </div>
+                            <div className="ml-8 flex items-end pb-2">
+                                <ActionIcon variant="outline" size="xl" color="red" onClick={() => removeProcessing(i)}>
+                                    <TrashIcon />
+                                </ActionIcon>
                             </div>
-                        </Fragment>
+                        </div>
                     ))}
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">
-                        Salva
-                    </Button>
-                    <Button variant="outline" size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset(contract)}>
-                        Reset
-                    </Button>
-                </div>
+                <Button leftIcon={<PlusIcon className="icon-field-left" />} variant="outline" color="green" uppercase onClick={() => append({})} className="mt-8">
+                    Aggiungi lavorazione
+                </Button>
+
+                <Button type="submit" size="xl" uppercase variant="outline" className="mt-4 w-full">
+                    Salva
+                </Button>
             </form>
         </>
     );

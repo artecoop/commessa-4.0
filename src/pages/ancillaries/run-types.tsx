@@ -91,7 +91,7 @@ const RunTypes: React.FC = () => {
                         Tipi di avviamento presenti
                     </Title>
 
-                    <Table striped>
+                    <Table striped fontSize="lg">
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Nome</th>

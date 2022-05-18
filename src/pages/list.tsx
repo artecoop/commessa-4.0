@@ -21,7 +21,7 @@ const Commesse: React.FC = () => {
                 </ActionIcon>
             </div>
 
-            <Table striped mt="xl">
+            <Table striped fontSize="lg" mt="xl">
                 <thead>
                     <tr>
                         <th className="px-4 py-2">Titolo</th>

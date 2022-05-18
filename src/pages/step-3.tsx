@@ -196,7 +196,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 </div>
 
                 <div className="mt-4">
-                    <Button type="submit" size="md" uppercase variant="outline" className="w-full">
+                    <Button type="submit" size="sm" color="lime" uppercase variant="outline" className="w-full">
                         Aggiungi avviamento
                     </Button>
                 </div>
@@ -204,10 +204,10 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
 
             {contract?.press && contract.press.filter(p => p.run_type?.kind === 'offset').length > 0 && (
                 <>
-                    <Title order={1} className="my-4">
+                    <Title order={2} className="my-4">
                         Avviamenti
                     </Title>
-                    <Table striped>
+                    <Table striped fontSize="lg">
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Tipo</th>
@@ -240,7 +240,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         </tbody>
                     </Table>
 
-                    <Button variant="outline" size="xl" uppercase color="lime" className="mt-8 w-full" onClick={() => save()}>
+                    <Button variant="outline" size="xl" uppercase className="mt-8 w-full" onClick={() => save()}>
                         Salva
                     </Button>
                 </>

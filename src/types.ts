@@ -63,6 +63,8 @@ export type Processing = {
     setup_hours?: number;
     estimate_hours: number;
     working_hours?: number;
+    expected_quantity?: number;
+    actual_quantity?: number;
     note?: string;
 };
 

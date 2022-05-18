@@ -165,11 +165,11 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
 
             {contract?.press && contract.press.filter(p => p.run_type?.kind === 'digital').length > 0 && (
                 <>
-                    <Title order={1} className="my-4">
+                    <Title order={2} className="my-4">
                         Avviamenti
                     </Title>
 
-                    <Table striped mt="xl">
+                    <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Tipo</th>
