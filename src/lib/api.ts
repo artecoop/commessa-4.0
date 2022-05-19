@@ -50,6 +50,7 @@ Axios.interceptors.response.use(
       return Promise.reject({ status: error.response.status, data: error.response.data });
     } */
 
+        console.log(error);
         return Promise.reject();
     }
 );

@@ -5,23 +5,26 @@ import dayjs from 'dayjs';
 import { apiPatch } from '@lib/api';
 import { success, error } from '@lib/notification';
 
-import { Contract, FetchResult } from 'types';
+import { Contract, FetchResult, Processing } from 'types';
 
 import Layout from '@components/_layout';
 
 import { ActionIcon, Divider, Modal, NumberInput, SimpleGrid, Table, Title } from '@mantine/core';
 
 import { CheckIcon, PencilAltIcon } from '@heroicons/react/outline';
+import Notes from '@components/notes';
 import { useState } from 'react';
 
 const Operative: React.FC = () => {
     const { id } = useParams();
 
     const url = `/items/contracts/${id}`;
-    const queryFields = { fields: ['*', 'processings.*', 'processings.process_definition.*', 'press.*', 'press.paper.*', 'press.run_type.*', 'press.varnish.*'] };
+    const queryFields = { fields: ['*', 'processings.*', 'processings.process_definition.*', 'processings.notes.*', 'press.*', 'press.paper.*', 'press.run_type.*', 'press.varnish.*'] };
     const key = [url, queryFields];
 
     const { data: contract } = useSWR<FetchResult<Contract>>(key);
+
+    const [currentProcessingForNotes, setCurrentProcessingForNotes] = useState<Processing>();
 
     const saveProcessing = async (id: number) => {
         const setup_hours = (document.getElementById(`processing_setup_hours_${id}`) as HTMLInputElement)?.value;
@@ -40,6 +43,12 @@ const Operative: React.FC = () => {
         }
     };
 
+    const saveNotes = async () => {
+        await saveContract();
+
+        setCurrentProcessingForNotes(undefined);
+    };
+
     const { mutate } = useSWRConfig();
     const saveContract = async () => {
         try {
@@ -50,17 +59,11 @@ const Operative: React.FC = () => {
         }
     };
 
-    const [opened, setOpened] = useState(false);
-
     return contract ? (
         <Layout title="Campi della Commessa">
             <Title order={1} mt="xl">
                 Commessa n° {contract.data.number} del {dayjs(contract.data.date).format('DD/MM/YYYY')}
             </Title>
-
-            <Modal opened={opened} onClose={() => setOpened(false)} title="Introduce yourself!">
-                ciaone
-            </Modal>
 
             <Title order={2} mt="xl">
                 {contract.data.title}
@@ -126,7 +129,7 @@ const Operative: React.FC = () => {
                                                     <CheckIcon />
                                                 </ActionIcon>
 
-                                                <ActionIcon variant="outline" color="primary" size="xl" className="ml-4" onClick={() => saveProcessing(p.id as number)}>
+                                                <ActionIcon variant="outline" color="primary" size="xl" className="ml-4" onClick={() => setCurrentProcessingForNotes(p)}>
                                                     <PencilAltIcon />
                                                 </ActionIcon>
                                             </div>
@@ -283,7 +286,7 @@ const Operative: React.FC = () => {
                                                     <CheckIcon />
                                                 </ActionIcon>
 
-                                                <ActionIcon variant="outline" color="primary" size="xl" className="ml-4" onClick={() => saveProcessing(p.id as number)}>
+                                                <ActionIcon variant="outline" color="primary" size="xl" className="ml-4" onClick={() => setCurrentProcessingForNotes(p)}>
                                                     <PencilAltIcon />
                                                 </ActionIcon>
                                             </div>
@@ -293,6 +296,12 @@ const Operative: React.FC = () => {
                         </tbody>
                     </Table>
                 </>
+            )}
+
+            {currentProcessingForNotes && (
+                <Modal opened={true} onClose={() => setCurrentProcessingForNotes(undefined)} title="Note" size="xl" centered>
+                    <Notes processing={currentProcessingForNotes} onSave={() => saveNotes()} />
+                </Modal>
             )}
         </Layout>
     ) : (
