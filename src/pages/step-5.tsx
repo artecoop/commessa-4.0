@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import useSWR, { useSWRConfig } from 'swr';
 
@@ -6,9 +6,8 @@ import { apiPatch } from '@lib/api';
 import { error, success } from '@lib/notification';
 
 import { Contract, FetchResult, ProcessDefinition } from 'types';
-import { processings } from 'values';
 
-import { ActionIcon, Button, NumberInput, Select, Textarea, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, NumberInput, Select, TextInput, Title } from '@mantine/core';
 
 import { PlusIcon, TrashIcon } from '@heroicons/react/outline';
 
@@ -21,15 +20,9 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
     const { data: processes } = useSWR<FetchResult<ProcessDefinition[]>>(['/items/process_definition', { filter: { special: true } }]);
 
     const [selectedProcess, setSelectedProcess] = useState<string | null>();
+    const [selectedRun, setSelectedRun] = useState<string | null>();
 
-    const {
-        handleSubmit,
-        register,
-        control,
-        reset,
-        setValue,
-        formState: { errors }
-    } = useForm<Contract>();
+    const { handleSubmit, register, control, setValue } = useForm<Contract>();
     const { fields, append, remove } = useFieldArray({
         control,
         name: 'processings'
@@ -43,15 +36,15 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
 
     const { mutate } = useSWRConfig();
 
-    const generateFromRuns = () => {
-        if (selectedProcess) {
-            contract?.press?.forEach(p => {
-                append({
-                    id: Math.round(Math.random() * 9999), //temporary
-                    process_definition: processes?.data.find(d => d.id === +selectedProcess),
-                    name: `${processes?.data.find(d => d.id === +selectedProcess)?.name} avviamento ${p.run_type.name}`,
-                    expected_quantity: p.sheets ?? Math.ceil(contract.quantity / p.yield)
-                });
+    const create = () => {
+        if (selectedProcess && selectedRun) {
+            const process = processes?.data.find(d => d.id === +selectedProcess);
+            const run = contract?.press?.find(p => p.id === +selectedRun);
+
+            append({
+                process_definition: process,
+                name: `${process?.name} avviamento ${run?.description ?? run?.run_type.name}`,
+                expected_quantity: run?.sheets ?? Math.ceil((contract?.quantity ?? 0) / (run?.yield ?? 0))
             });
         }
     };
@@ -82,7 +75,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 Genera da avviamenti
             </Title>
 
-            <div className="flex">
+            <div className="flex items-end">
                 <Select
                     label="Lavorazione"
                     size="xl"
@@ -92,37 +85,75 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     data={processes?.data.map(p => ({ value: p.id?.toString() || '', label: p.name })) || []}
                 />
 
-                <Button leftIcon={<PlusIcon className="icon-field-left" />} variant="outline" color="green" uppercase onClick={() => generateFromRuns()}>
-                    Genera da avviamenti
+                <Select
+                    label="Avviamento"
+                    size="xl"
+                    variant="filled"
+                    className="ml-4"
+                    value={selectedRun}
+                    onChange={setSelectedRun}
+                    data={contract?.press?.map(p => ({ value: p.id?.toString() || '', label: p.description ?? p.run_type.name })) || []}
+                />
+
+                <Button leftIcon={<PlusIcon className="icon-field-left" />} variant="outline" color="green" size="xl" className="ml-4" uppercase onClick={() => create()}>
+                    Crea da avviamento
                 </Button>
             </div>
 
             <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
-                {fields
-                    .filter(f => f.process_definition.special)
-                    .map((v, i) => (
-                        <div key={v.id} className="mb-4 flex">
-                            <TextInput label="Nome lavorazione" size="xl" variant="filled" className="flex-grow" disabled {...register(`processings.${i}.name` as const)} />
+                {fields.map((v, i) => (
+                    <Fragment key={v.id}>
+                        {v.process_definition?.special && (
+                            <div className="mb-4 flex items-end">
+                                <TextInput label="Nome lavorazione" size="xl" variant="filled" className="flex-grow" disabled {...register(`processings.${i}.name` as const)} />
 
-                            <Controller
-                                name={`processings.${i}.estimate_hours`}
-                                control={control}
-                                render={({ field }) => (
-                                    <NumberInput label="Ore preventivate" size="xl" variant="filled" className="ml-4" min={0} precision={1} step={0.5} value={field.value} onChange={field.onChange} />
-                                )}
-                            />
+                                <Controller
+                                    name={`processings.${i}.estimate_hours`}
+                                    control={control}
+                                    rules={{ required: 'Le ore preventivate sono obbligatorie' }}
+                                    render={({ field, fieldState }) => (
+                                        <NumberInput
+                                            label="Ore preventivate"
+                                            size="xl"
+                                            variant="filled"
+                                            className="ml-4"
+                                            required
+                                            min={0}
+                                            precision={1}
+                                            step={0.5}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            error={fieldState.error?.message}
+                                        />
+                                    )}
+                                />
 
-                            <Controller
-                                name={`processings.${i}.expected_quantity`}
-                                control={control}
-                                render={({ field }) => <NumberInput label="Ore preventivate" size="xl" variant="filled" className="ml-4" min={0} value={field.value} onChange={field.onChange} />}
-                            />
+                                <Controller
+                                    name={`processings.${i}.expected_quantity`}
+                                    control={control}
+                                    rules={{ required: 'I fogli sono obbligatori' }}
+                                    render={({ field, fieldState }) => (
+                                        <NumberInput
+                                            label="Fogli"
+                                            size="xl"
+                                            variant="filled"
+                                            required
+                                            className="ml-4"
+                                            min={0}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            error={fieldState.error?.message}
+                                        />
+                                    )}
+                                />
 
-                            <ActionIcon variant="outline" size="xl" color="red" className="ml-4" onClick={() => removeProcessing(i)}>
-                                <TrashIcon />
-                            </ActionIcon>
-                        </div>
-                    ))}
+                                <ActionIcon variant="outline" size="xl" color="red" className="ml-4" onClick={() => removeProcessing(i)}>
+                                    <TrashIcon />
+                                </ActionIcon>
+                            </div>
+                        )}
+                    </Fragment>
+                ))}
 
                 <div className="mt-8 flex">
                     <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">

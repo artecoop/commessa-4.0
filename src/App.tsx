@@ -9,6 +9,8 @@ import ErrorBoundary from '@components/error-boundary';
 const Login = lazy(() => import('./pages/login'));
 const Commesse = lazy(() => import('./pages/list'));
 const Manage = lazy(() => import('./pages/manage'));
+const Operative = lazy(() => import('./pages/operative'));
+
 const Paper = lazy(() => import('./pages/ancillaries/paper'));
 const Processing = lazy(() => import('./pages/ancillaries/processing'));
 const RunType = lazy(() => import('./pages/ancillaries/run-types'));
@@ -29,6 +31,8 @@ export default function App() {
                                 <Route path="manage" element={<Manage />} />
                                 <Route path="manage/:id" element={<Manage />} />
                             </Route>
+
+                            <Route path="operative/:id" element={<Operative />} />
 
                             <Route path="/papers" element={<Paper />} />
                             <Route path="/processings" element={<Processing />} />

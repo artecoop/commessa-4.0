@@ -1,56 +1,99 @@
+import useSWR, { useSWRConfig } from 'swr';
+import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import { Contract, FetchResult, Paper } from 'types';
-import { processings, offsetRunTypes, digitalRunTypes, varnishTypes } from 'values';
+import { apiPatch } from '@lib/api';
+import { success, error } from '@lib/notification';
 
-import { Divider, SimpleGrid, Table, Title } from '@mantine/core';
-import useSWR from 'swr';
+import { Contract, FetchResult } from 'types';
 
-type Props = {
-    contract: Contract;
-};
+import Layout from '@components/_layout';
 
-const Step6: React.FC<Props> = ({ contract }: Props) => {
-    const { data: papers } = useSWR<FetchResult<Paper[]>>(['/items/paper', { sort: ['name'] }]);
+import { ActionIcon, Divider, Modal, NumberInput, SimpleGrid, Table, Title } from '@mantine/core';
+
+import { CheckIcon, PencilAltIcon } from '@heroicons/react/outline';
+import { useState } from 'react';
+
+const Operative: React.FC = () => {
+    const { id } = useParams();
+
+    const url = `/items/contracts/${id}`;
+    const queryFields = { fields: ['*', 'processings.*', 'processings.process_definition.*', 'press.*', 'press.paper.*', 'press.run_type.*', 'press.varnish.*'] };
+    const key = [url, queryFields];
+
+    const { data: contract } = useSWR<FetchResult<Contract>>(key);
+
+    const saveProcessing = async (id: number) => {
+        const setup_hours = (document.getElementById(`processing_setup_hours_${id}`) as HTMLInputElement)?.value;
+        const working_hours = (document.getElementById(`processing_working_hours_${id}`) as HTMLInputElement).value;
+        const actual_quantity = (document.getElementById(`processing_actual_quantity_${id}`) as HTMLInputElement).value;
+
+        if (setup_hours || working_hours || actual_quantity) {
+            const processing = contract?.data.processings?.find(p => p.id === id);
+            if (processing) {
+                processing.setup_hours = setup_hours && +setup_hours > 0 ? +setup_hours : undefined;
+                processing.working_hours = working_hours && +working_hours > 0 ? +working_hours : undefined;
+                processing.actual_quantity = actual_quantity && +actual_quantity > 0 ? +actual_quantity : undefined;
+
+                await saveContract();
+            }
+        }
+    };
+
+    const { mutate } = useSWRConfig();
+    const saveContract = async () => {
+        try {
+            await mutate(key, apiPatch(url, contract?.data));
+            success('Commessa salvata con successo');
+        } catch (e) {
+            error(e);
+        }
+    };
+
+    const [opened, setOpened] = useState(false);
 
     return contract ? (
-        <>
+        <Layout title="Campi della Commessa">
             <Title order={1} mt="xl">
-                Commessa n° {contract.number} del {dayjs(contract.date).format('DD/MM/YYYY')}
+                Commessa n° {contract.data.number} del {dayjs(contract.data.date).format('DD/MM/YYYY')}
             </Title>
+
+            <Modal opened={opened} onClose={() => setOpened(false)} title="Introduce yourself!">
+                ciaone
+            </Modal>
 
             <Title order={2} mt="xl">
-                {contract.title}
+                {contract.data.title}
             </Title>
-            {contract.description && <>{contract.description}</>}
+            {contract.data.description && <>{contract.data.description}</>}
             <SimpleGrid cols={4} mt="xl">
                 <div>
-                    <b>Cliente</b>: {contract.customer}
+                    <b>Cliente</b>: {contract.data.customer}
                 </div>
 
-                {contract.desired_delivery && (
+                {contract.data.desired_delivery && (
                     <div>
-                        <b>Data di consegna</b>: {dayjs(contract.desired_delivery).format('DD/MM/YYYY')}
+                        <b>Data di consegna</b>: {dayjs(contract.data.desired_delivery).format('DD/MM/YYYY')}
                     </div>
                 )}
 
-                {contract.estimate && (
+                {contract.data.estimate && (
                     <div>
-                        <b>Preventivo</b>: {contract.estimate} del {dayjs(contract.estimate_date).format('DD/MM/YYYY')}
+                        <b>Preventivo</b>: {contract.data.estimate} del {dayjs(contract.data.estimate_date).format('DD/MM/YYYY')}
                     </div>
                 )}
 
                 <div>
-                    <b>Agente</b>: {contract.representative}
+                    <b>Agente</b>: {contract.data.representative}
                 </div>
             </SimpleGrid>
 
             {/**
              * --------------------------------------------------------------------------------------------------------------------------
-             *  Lavorazioni di grafica e prestampa
+             * Lavorazioni di grafica e prestampa
              * --------------------------------------------------------------------------------------------------------------------------
              */}
-            {contract.processings && contract.processings.filter(p => ['design', 'prepress'].includes(p.kind)).length > 0 && (
+            {contract.data.processings && contract.data.processings.filter(p => p.process_definition?.pre).length > 0 && (
                 <>
                     <Divider my="xl" size="xl" color="blue" />
 
@@ -61,19 +104,33 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                             <tr>
                                 <th className="px-4 py-2">Tipo</th>
                                 <th className="px-4 py-2">Nome</th>
-                                <th className="px-4 py-2">Ore preventivate</th>
-                                <th className="px-4 py-2">Ore lavorate</th>
+                                <th className="w-48 px-4 py-2">Ore preventivate</th>
+                                <th className="w-48 px-4 py-2">Ore lavorate</th>
+                                <th className="w-40 px-4 py-2" />
                             </tr>
                         </thead>
                         <tbody>
-                            {contract.processings
-                                ?.filter(p => ['design', 'prepress'].includes(p.kind))
+                            {contract.data.processings
+                                ?.filter(p => p.process_definition?.pre)
                                 ?.map(p => (
                                     <tr key={p.id}>
-                                        <td className="px-4 py-2 font-bold">{processings.find(pr => pr.value === p.kind)?.label}</td>
+                                        <td className="px-4 py-2 font-bold">{p.process_definition?.name}</td>
                                         <td className="px-4 py-2">{p.name}</td>
                                         <td className="px-4 py-2">{p.estimate_hours}</td>
-                                        <td className="px-4 py-2">{p.working_hours}</td>
+                                        <td className="px-4 py-2">
+                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours} />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <div className="ml-4 flex self-center">
+                                                <ActionIcon variant="outline" color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
+                                                    <CheckIcon />
+                                                </ActionIcon>
+
+                                                <ActionIcon variant="outline" color="primary" size="xl" className="ml-4" onClick={() => saveProcessing(p.id as number)}>
+                                                    <PencilAltIcon />
+                                                </ActionIcon>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                         </tbody>
@@ -83,10 +140,10 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
 
             {/**
              * --------------------------------------------------------------------------------------------------------------------------
-             *  Avviamenti offset
+             * Avviamenti offset
              * --------------------------------------------------------------------------------------------------------------------------
              */}
-            {contract.offset_prints && (
+            {contract.data.press && contract.data.press.filter(p => p.run_type?.kind === 'offset').length > 0 && (
                 <>
                     <Divider my="xl" size="xl" color="blue" />
 
@@ -105,36 +162,45 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {contract.offset_prints.map(op => (
-                                <tr key={op.id}>
-                                    <td className="px-4 py-2 font-bold">{offsetRunTypes.find(pr => pr.value === op.run_type)?.label}</td>
-                                    <td className="px-4 py-2">{op.colors?.join('')}</td>
-                                    <td className="px-4 py-2">{op.pantones?.map(pa => pa.name).join(', ')}</td>
-                                    <td className="px-4 py-2">{varnishTypes.find(pr => pr.value === op.varnish)?.label}</td>
-                                    <td className="px-4 py-2">{op.yield}</td>
-                                    <td className="px-4 py-2">{op.run_type !== 'v' ? Math.ceil(contract.quantity / op.yield) : '-'}</td>
-                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === op.paper)?.name}</td>
-                                </tr>
-                            ))}
+                            {contract.data.press
+                                .filter(p => p.run_type?.kind === 'offset')
+                                .map(op => (
+                                    <tr key={op.id}>
+                                        <td className="px-4 py-2 font-bold">{op.run_type?.name}</td>
+                                        <td className="px-4 py-2">{op.colors.map(c => c.toUpperCase())}</td>
+                                        <td className="px-4 py-2">{op.pantones?.map(pa => pa.name).join(', ')}</td>
+                                        <td className="px-4 py-2">{op.varnish?.name}</td>
+                                        <td className="px-4 py-2">{op.yield}</td>
+                                        <td className="px-4 py-2">{op.run_type?.name !== 'Volta' ? Math.ceil(contract.data.quantity / op.yield) : '-'}</td>
+                                        <td className="px-4 py-2">{op.paper.name}</td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </Table>
 
                     <Title order={3} mt="xl">
                         Lastre:&nbsp;
-                        {contract.offset_prints.flatMap(op => op.colors).length +
-                            contract.offset_prints.flatMap(op => op.pantones).length +
-                            contract.offset_prints.flatMap(op => op.varnish).filter(v => v === 'reserve').length}
-                        &nbsp;- Fogli:&nbsp;{contract.offset_prints.filter(op => op.run_type !== 'v').reduce((acc, curr) => acc + Math.ceil(contract.quantity / curr.yield), 0)}
+                        {contract.data.press.filter(p => p.run_type?.kind === 'offset').flatMap(op => op.colors).length +
+                            contract.data.press.filter(p => p.run_type?.kind === 'offset').flatMap(op => op.pantones).length +
+                            contract.data.press
+                                .filter(p => p.run_type?.kind === 'offset')
+                                .flatMap(op => op.varnish)
+                                .filter(v => v?.add_plate).length}
+                        &nbsp;- Fogli:&nbsp;
+                        {contract.data.press
+                            .filter(p => p.run_type?.kind === 'offset')
+                            .filter(op => op.run_type?.name !== 'Volta')
+                            .reduce((acc, curr) => acc + Math.ceil(contract.data.quantity / curr.yield), 0)}
                     </Title>
                 </>
             )}
 
             {/**
              * --------------------------------------------------------------------------------------------------------------------------
-             *  Avviamenti digitale
+             * Avviamenti digitale
              * --------------------------------------------------------------------------------------------------------------------------
              */}
-            {contract.digital_prints && (
+            {contract.data.press && contract.data.press.filter(p => p.run_type?.kind === 'digital').length > 0 && (
                 <>
                     <Divider my="xl" size="xl" color="blue" />
 
@@ -146,20 +212,24 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                                 <th className="px-4 py-2">Tipo</th>
                                 <th className="px-4 py-2">Descrizione</th>
                                 <th className="px-4 py-2">Colori</th>
+                                <th className="px-4 py-2">Resa</th>
                                 <th className="px-4 py-2">Fogli</th>
                                 <th className="px-4 py-2">Carta</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {contract.digital_prints.map(dp => (
-                                <tr key={dp.id}>
-                                    <td className="px-4 py-2 font-bold">{digitalRunTypes.find(pr => pr.value === dp.kind)?.label}</td>
-                                    <td className="px-4 py-2">{dp.description}</td>
-                                    <td className="px-4 py-2">{dp.color ? 'Colori' : 'B/N'}</td>
-                                    <td className="px-4 py-2">{dp.sheets}</td>
-                                    <td className="px-4 py-2">{papers?.data.find(d => d.id === dp.paper)?.name}</td>
-                                </tr>
-                            ))}
+                            {contract.data.press
+                                .filter(p => p.run_type?.kind === 'digital')
+                                .map(dp => (
+                                    <tr key={dp.id}>
+                                        <td className="px-4 py-2 font-bold">{dp.run_type?.name}</td>
+                                        <td className="px-4 py-2">{dp.description}</td>
+                                        <td className="px-4 py-2">{dp.colors.length > 1 ? 'Colori' : 'B/N'}</td>
+                                        <td className="px-4 py-2">{dp.yield}</td>
+                                        <td className="px-4 py-2">{dp.sheets}</td>
+                                        <td className="px-4 py-2">{dp.paper.name}</td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </Table>
                 </>
@@ -167,10 +237,10 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
 
             {/**
              * --------------------------------------------------------------------------------------------------------------------------
-             *  Lavorazioni post stampa
+             * Lavorazioni post stampa
              * --------------------------------------------------------------------------------------------------------------------------
              */}
-            {contract.processings && contract.processings.filter(p => !['design', 'prepress'].includes(p.kind)).length > 0 && (
+            {contract.data.processings && contract.data.processings.filter(p => !p.process_definition?.pre).length > 0 && (
                 <>
                     <Divider my="xl" size="xl" color="blue" />
 
@@ -179,33 +249,55 @@ const Step6: React.FC<Props> = ({ contract }: Props) => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="w-32 px-4 py-2">Tipo</th>
-                                <th className="w-32 px-4 py-2">Ore setup</th>
+                                <th className="px-4 py-2">Tipo</th>
+                                <th className="px-4 py-2">Descrizione</th>
                                 <th className="w-48 px-4 py-2">Ore preventivate</th>
-                                <th className="w-32 px-4 py-2">Ore lavorate</th>
-                                <th className="px-4 py-2">Note</th>
+                                <th className="w-48 px-4 py-2">Ore setup</th>
+                                <th className="w-48 px-4 py-2">Ore lavorazione</th>
+                                <th className="w-48 px-4 py-2">Quantità</th>
+                                <th className="w-48 px-4 py-2">Quantità effettiva</th>
+                                <th className="w-24 px-4 py-2" />
                             </tr>
                         </thead>
                         <tbody>
-                            {contract.processings
-                                .filter(p => !['design', 'prepress'].includes(p.kind))
+                            {contract.data.processings
+                                .filter(p => !p.process_definition?.pre)
                                 .map(p => (
                                     <tr key={p.id}>
-                                        <td className="px-4 py-2 font-bold">{processings.find(pr => pr.value === p.kind)?.label}</td>
-                                        <td className="px-4 py-2">{p.setup_hours}</td>
+                                        <td className="px-4 py-2 font-bold">{p.process_definition?.name}</td>
+                                        <td className="px-4 py-2">{p.name}</td>
                                         <td className="px-4 py-2">{p.estimate_hours}</td>
-                                        <td className="px-4 py-2">{p.working_hours}</td>
-                                        <td className="px-4 py-2">{p.note}</td>
+                                        <td className="px-4 py-2">
+                                            <NumberInput id={`processing_setup_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.setup_hours} />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours} />
+                                        </td>
+                                        <td className="px-4 py-2">{p.expected_quantity ?? '-'}</td>
+                                        <td className="px-4 py-2">
+                                            <NumberInput id={`processing_actual_quantity_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.actual_quantity} />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <div className="ml-4 flex self-center">
+                                                <ActionIcon variant="outline" color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
+                                                    <CheckIcon />
+                                                </ActionIcon>
+
+                                                <ActionIcon variant="outline" color="primary" size="xl" className="ml-4" onClick={() => saveProcessing(p.id as number)}>
+                                                    <PencilAltIcon />
+                                                </ActionIcon>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                         </tbody>
                     </Table>
                 </>
             )}
-        </>
+        </Layout>
     ) : (
         <>La commessa è vuota</>
     );
 };
 
-export default Step6;
+export default Operative;

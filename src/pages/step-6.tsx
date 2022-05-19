@@ -17,8 +17,8 @@ type Props = {
     queryFields: unknown;
 };
 
-const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
-    const { data: processes } = useSWR<FetchResult<ProcessDefinition[]>>(['/items/process_definition', { filter: { pre: true } }]);
+const Step6: React.FC<Props> = ({ contract, queryFields }: Props) => {
+    const { data: processes } = useSWR<FetchResult<ProcessDefinition[]>>(['/items/process_definition', { filter: { pre: false, special: false } }]);
 
     const {
         handleSubmit,
@@ -65,7 +65,7 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
             <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
                 {fields.map((v, i) => (
                     <Fragment key={v.id}>
-                        {(!v.process_definition || v.process_definition.pre) && (
+                        {(!v.process_definition || (!v.process_definition.pre && !v.process_definition.special)) && (
                             <div className="mb-4 flex">
                                 <Controller
                                     name={`processings.${i}.process_definition`}
@@ -116,6 +116,14 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     )}
                                 />
 
+                                <Controller
+                                    name={`processings.${i}.expected_quantity`}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <NumberInput label="Quantità" size="xl" variant="filled" className="ml-4" min={0} precision={1} step={0.5} value={field.value} onChange={field.onChange} />
+                                    )}
+                                />
+
                                 <div className="ml-8 flex items-end pb-2">
                                     <ActionIcon variant="outline" size="xl" color="red" onClick={() => removeProcessing(i)}>
                                         <TrashIcon />
@@ -138,4 +146,4 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
     );
 };
 
-export default Step2;
+export default Step6;

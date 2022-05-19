@@ -227,7 +227,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                         <td className="px-4 py-2">{p.run_type.name}</td>
                                         <td className="px-4 py-2">{p.paper.name}</td>
                                         <td className="px-4 py-2">{p.yield}</td>
-                                        <td className="px-4 py-2">{p.colors?.map(c => c.toUpperCase())}</td>
+                                        <td className="px-4 py-2">{p.colors.map(c => c.toUpperCase())}</td>
                                         <td className="px-4 py-2">{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
                                         <td className="px-4 py-2">{p.varnish?.name ?? '-'}</td>
                                         <td>

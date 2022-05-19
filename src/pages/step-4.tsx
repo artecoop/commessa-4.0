@@ -188,7 +188,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     <tr key={p.id}>
                                         <td className="px-4 py-2">{p.run_type.name}</td>
                                         <td className="px-4 py-2">{p.description}</td>
-                                        <td className="px-4 py-2">{p.colors ? 'SI' : 'NO'}</td>
+                                        <td className="px-4 py-2">{p.colors.length > 1 ? 'SI' : 'NO'}</td>
                                         <td className="px-4 py-2">{p.paper.name}</td>
                                         <td className="px-4 py-2">{p.yield}</td>
                                         <td className="px-4 py-2">{p.sheets}</td>

@@ -65,14 +65,19 @@ export type Processing = {
     working_hours?: number;
     expected_quantity?: number;
     actual_quantity?: number;
-    note?: string;
+    notes?: ProcessingNote[];
+};
+
+export type ProcessingNote = {
+    id?: number;
+    description: string;
 };
 
 export type Press = {
     id?: number;
     run_type: RunType;
     description?: string;
-    colors?: string[];
+    colors: string[];
     pantones?: Pantone[];
     varnish?: Varnish;
     yield: number;
