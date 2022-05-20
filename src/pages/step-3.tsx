@@ -93,7 +93,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
             <span className="text-xs font-semibold italic">* Campi obbligatori</span>
 
             <form noValidate className="mt-8" onSubmit={handleSubmit(addOffsetPrint)}>
-                <div className="flex justify-between">
+                <div className="flex">
                     <Controller
                         name="run_type"
                         control={control}
@@ -112,6 +112,8 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         )}
                     />
 
+                    <TextInput label="Descrizione" size="xl" variant="filled" className="ml-4 flex-grow" {...register('description')} />
+
                     <Controller
                         name="paper"
                         control={control}
@@ -121,11 +123,12 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 label="Carta"
                                 size="xl"
                                 variant="filled"
+                                className="ml-4"
                                 required
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={fieldState.error?.message}
-                                data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: p.name })) || []}
+                                data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: `${p.name} ${p.weight}gr ${p.format} ${p.orientation ?? ''}` })) || []}
                             />
                         )}
                     />
@@ -138,7 +141,9 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                             <NumberInput label="Resa" size="xl" variant="filled" className="ml-4" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
                         )}
                     />
+                </div>
 
+                <div className="mt-8 flex">
                     <Controller
                         name="colors"
                         control={control}
@@ -167,36 +172,36 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                             />
                         )}
                     />
-                </div>
 
-                <div className="mt-8 flex">
-                    <div className="flex items-center">
-                        <Button leftIcon={<PlusIcon className="icon-field-left" />} variant="outline" color="green" uppercase onClick={() => append({})}>
+                    <div className="ml-8 flex">
+                        <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" variant="outline" className="mt-12" uppercase onClick={() => append({})}>
                             Aggiungi Pantone
                         </Button>
-                    </div>
 
-                    {fields.map((v, i) => (
-                        <div key={v.id} className="mb-4 flex items-end">
-                            <TextInput
-                                label="Pantone"
-                                size="xl"
-                                variant="filled"
-                                className="ml-4 flex-grow"
-                                required
-                                {...register(`pantones.${i}.name` as const, { required: 'Il pantone è obbligatorio se aggiunto' })}
-                                error={errors.pantones?.[i].name?.message}
-                            />
+                        <div className="grid grid-cols-3 gap-4">
+                            {fields.map((v, i) => (
+                                <div key={v.id} className="flex items-end">
+                                    <TextInput
+                                        label="Pantone"
+                                        size="xl"
+                                        variant="filled"
+                                        className="ml-4 flex-grow"
+                                        required
+                                        {...register(`pantones.${i}.name` as const, { required: 'Il pantone è obbligatorio se aggiunto' })}
+                                        error={errors.pantones?.[i].name?.message}
+                                    />
 
-                            <ActionIcon variant="outline" size="xl" color="red" className="ml-2 mb-2" onClick={() => removePantone(i)}>
-                                <TrashIcon />
-                            </ActionIcon>
+                                    <ActionIcon size="xl" color="red" className="ml-2 mb-2" onClick={() => removePantone(i)}>
+                                        <TrashIcon />
+                                    </ActionIcon>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
 
                 <div className="mt-4">
-                    <Button type="submit" size="sm" color="lime" uppercase variant="outline" className="w-full">
+                    <Button type="submit" size="sm" color="lime" variant="outline" uppercase className="w-full">
                         Aggiungi avviamento
                     </Button>
                 </div>
@@ -211,6 +216,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Tipo</th>
+                                <th className="px-4 py-2">Descrizione</th>
                                 <th className="px-4 py-2">Carta</th>
                                 <th className="px-4 py-2">Resa</th>
                                 <th className="px-4 py-2">Colore</th>
@@ -225,7 +231,10 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 .map(p => (
                                     <tr key={p.id}>
                                         <td className="px-4 py-2">{p.run_type.name}</td>
-                                        <td className="px-4 py-2">{p.paper.name}</td>
+                                        <td className="px-4 py-2">{p.description}</td>
+                                        <td className="px-4 py-2">
+                                            {p.paper.name} {p.paper.weight}gr {p.paper.format} {p.paper.orientation}
+                                        </td>
                                         <td className="px-4 py-2">{p.yield}</td>
                                         <td className="px-4 py-2">{p.colors.map(c => c.toUpperCase())}</td>
                                         <td className="px-4 py-2">{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
@@ -240,7 +249,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         </tbody>
                     </Table>
 
-                    <Button variant="outline" size="xl" uppercase className="mt-8 w-full" onClick={() => save()}>
+                    <Button size="xl" uppercase className="mt-8 w-full" onClick={() => save()}>
                         Salva
                     </Button>
                 </>

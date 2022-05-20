@@ -193,10 +193,10 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                 />
 
                 <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">
+                    <Button type="submit" size="xl" color="primary" uppercase variant="filled" className="flex-grow">
                         Salva
                     </Button>
-                    <Button variant="outline" size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset(contract)}>
+                    <Button size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset(contract)}>
                         Reset
                     </Button>
                 </div>

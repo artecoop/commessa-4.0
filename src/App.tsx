@@ -10,6 +10,7 @@ const Login = lazy(() => import('./pages/login'));
 const Commesse = lazy(() => import('./pages/list'));
 const Manage = lazy(() => import('./pages/manage'));
 const Operative = lazy(() => import('./pages/operative'));
+const Print = lazy(() => import('./pages/print'));
 
 const Paper = lazy(() => import('./pages/ancillaries/paper'));
 const Processing = lazy(() => import('./pages/ancillaries/processing'));
@@ -33,6 +34,8 @@ export default function App() {
                             </Route>
 
                             <Route path="operative/:id" element={<Operative />} />
+
+                            <Route path="print/:id" element={<Print />} />
 
                             <Route path="/papers" element={<Paper />} />
                             <Route path="/processings" element={<Processing />} />

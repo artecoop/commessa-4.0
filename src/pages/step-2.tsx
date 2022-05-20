@@ -117,7 +117,7 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 />
 
                                 <div className="ml-8 flex items-end pb-2">
-                                    <ActionIcon variant="outline" size="xl" color="red" onClick={() => removeProcessing(i)}>
+                                    <ActionIcon size="xl" color="red" onClick={() => removeProcessing(i)}>
                                         <TrashIcon />
                                     </ActionIcon>
                                 </div>
@@ -126,11 +126,11 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     </Fragment>
                 ))}
 
-                <Button leftIcon={<PlusIcon className="icon-field-left" />} variant="outline" color="green" uppercase onClick={() => append({})} className="mt-8">
+                <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" variant="outline" uppercase onClick={() => append({})} className="mt-8">
                     Aggiungi lavorazione
                 </Button>
 
-                <Button type="submit" size="xl" uppercase variant="outline" className="mt-4 w-full">
+                <Button type="submit" size="xl" uppercase className="mt-4 w-full">
                     Salva
                 </Button>
             </form>

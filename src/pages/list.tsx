@@ -6,7 +6,7 @@ import { Contract, FetchResult } from 'types';
 
 import Layout from '@components/_layout';
 import { ActionIcon, Table, Title } from '@mantine/core';
-import { EyeIcon, PencilIcon, PlusIcon } from '@heroicons/react/outline';
+import { EyeIcon, PencilIcon, PlusIcon, PrinterIcon } from '@heroicons/react/outline';
 
 const Commesse: React.FC = () => {
     const { data: contracts } = useSWR<FetchResult<Contract[]>>(['/items/contracts', { fields: ['id', 'title', 'date', 'customer', 'desired_delivery'] }]);
@@ -16,7 +16,7 @@ const Commesse: React.FC = () => {
             <div className="flex items-center">
                 <Title order={1}>Commesse</Title>
 
-                <ActionIcon variant="outline" color="green" component={Link} to="/commesse/manage" className="ml-4">
+                <ActionIcon color="green" component={Link} to="/commesse/manage" className="ml-4">
                     <PlusIcon />
                 </ActionIcon>
             </div>
@@ -28,7 +28,7 @@ const Commesse: React.FC = () => {
                         <th className="px-4 py-2">Data</th>
                         <th className="px-4 py-2">Cliente</th>
                         <th className="px-4 py-2">Consegna</th>
-                        <th className="w-32" />
+                        <th className="w-44" />
                     </tr>
                 </thead>
                 <tbody>
@@ -43,8 +43,11 @@ const Commesse: React.FC = () => {
                                     <ActionIcon color="primary" size="lg" component={Link} to={`manage/${c.id}`}>
                                         <PencilIcon />
                                     </ActionIcon>
-                                    <ActionIcon color="lime" size="lg" component={Link} to={`/operative/${c.id}`}>
+                                    <ActionIcon size="lg" className="ml-4" color="blue" component={Link} to={`/operative/${c.id}`}>
                                         <EyeIcon />
+                                    </ActionIcon>
+                                    <ActionIcon size="lg" className="ml-4" color="red" onClick={() => window.open(`/print/${c.id}`, 'printWindow', 'popup')}>
+                                        <PrinterIcon />
                                     </ActionIcon>
                                 </div>
                             </td>

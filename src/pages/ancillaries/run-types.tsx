@@ -76,10 +76,10 @@ const RunTypes: React.FC = () => {
                 </div>
 
                 <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">
+                    <Button type="submit" size="xl" uppercase className="flex-grow">
                         Salva
                     </Button>
-                    <Button variant="outline" size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset()}>
+                    <Button size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset()}>
                         Reset
                     </Button>
                 </div>

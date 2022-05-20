@@ -67,7 +67,7 @@ const Login: React.FC = () => {
                         className="mt-4"
                     />
 
-                    <Button type="submit" size="xl" uppercase variant="outline" className="mt-6 w-full">
+                    <Button type="submit" size="xl" uppercase className="mt-6 w-full">
                         Accedi
                     </Button>
                 </form>

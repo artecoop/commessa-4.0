@@ -2,6 +2,7 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton, Divider } from '@mantine/core';
+
 import { BriefcaseIcon, ColorSwatchIcon, CubeTransparentIcon, PaperAirplaneIcon, RefreshIcon } from '@heroicons/react/outline';
 
 type LayoutProps = {
@@ -59,7 +60,7 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
                             onClick={() => navigate(m.link)}
                         >
                             <Group>
-                                <ThemeIcon color={m.color} variant="light">
+                                <ThemeIcon color={m.color} variant="gradient">
                                     {m.icon}
                                 </ThemeIcon>
 
@@ -82,7 +83,7 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
                             onClick={() => navigate(m.link)}
                         >
                             <Group>
-                                <ThemeIcon color={m.color} variant="light">
+                                <ThemeIcon color={m.color} variant="filled">
                                     {m.icon}
                                 </ThemeIcon>
 

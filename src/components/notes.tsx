@@ -1,11 +1,11 @@
 import { useForm } from 'react-hook-form';
 
-import { Processing } from 'types';
+import { Press, Processing } from 'types';
 
 import { Button, Textarea, Title } from '@mantine/core';
 
 type Props = {
-    processing: Processing;
+    processing: Processing | Press;
     onSave(): void;
 };
 
@@ -40,7 +40,7 @@ export const Notes: React.FC<Props> = (props: Props) => {
                     </Title>
 
                     {props.processing.notes.map((n, i) => (
-                        <div key={i} className="even:bg-blue-100 px-4 py-2">
+                        <div key={i} className="px-4 py-2 even:bg-blue-100">
                             {n.description}
                         </div>
                     ))}
@@ -50,7 +50,7 @@ export const Notes: React.FC<Props> = (props: Props) => {
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
                 <Textarea label="Aggiungi nota" size="xl" variant="filled" required {...register('description', { required: 'La nota è obbligatoria' })} error={errors.description?.message} />
 
-                <Button type="submit" size="xl" uppercase variant="outline" className="mt-4 w-full">
+                <Button type="submit" size="xl" uppercase className="mt-4 w-full">
                     Salva
                 </Button>
             </form>

@@ -84,6 +84,8 @@ export type Press = {
     sheets?: number;
     consumed_sheets?: number;
     paper: Paper;
+    working_hours?: number;
+    notes?: ProcessingNote[];
 };
 
 export type Paper = {

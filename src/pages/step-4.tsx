@@ -132,7 +132,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 value={field.value?.toString()}
                                 onChange={field.onChange}
                                 error={fieldState.error?.message}
-                                data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: p.name })) || []}
+                                data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: `${p.name} ${p.weight}gr ${p.format} ${p.orientation ?? ''}` })) || []}
                             />
                         )}
                     />
@@ -157,7 +157,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 </div>
 
                 <div className="ml-8 flex items-end pb-2">
-                    <ActionIcon size="xl" color="blue" variant="outline" type="submit">
+                    <ActionIcon size="xl" color="blue" type="submit">
                         <PlusIcon />
                     </ActionIcon>
                 </div>
@@ -189,7 +189,9 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                         <td className="px-4 py-2">{p.run_type.name}</td>
                                         <td className="px-4 py-2">{p.description}</td>
                                         <td className="px-4 py-2">{p.colors.length > 1 ? 'SI' : 'NO'}</td>
-                                        <td className="px-4 py-2">{p.paper.name}</td>
+                                        <td className="px-4 py-2">
+                                            {p.paper.name} {p.paper.weight}gr {p.paper.format} {p.paper.orientation}
+                                        </td>
                                         <td className="px-4 py-2">{p.yield}</td>
                                         <td className="px-4 py-2">{p.sheets}</td>
                                         <td>
@@ -202,7 +204,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         </tbody>
                     </Table>
 
-                    <Button variant="outline" size="xl" uppercase color="lime" className="mt-8 w-full" onClick={() => save()}>
+                    <Button size="xl" uppercase color="lime" className="mt-8 w-full" onClick={() => save()}>
                         Salva
                     </Button>
                 </>

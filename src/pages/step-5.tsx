@@ -95,7 +95,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     data={contract?.press?.map(p => ({ value: p.id?.toString() || '', label: p.description ?? p.run_type.name })) || []}
                 />
 
-                <Button leftIcon={<PlusIcon className="icon-field-left" />} variant="outline" color="green" size="xl" className="ml-4" uppercase onClick={() => create()}>
+                <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" size="xl" variant="outline" className="ml-4" uppercase onClick={() => create()}>
                     Crea da avviamento
                 </Button>
             </div>
@@ -147,7 +147,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     )}
                                 />
 
-                                <ActionIcon variant="outline" size="xl" color="red" className="ml-4" onClick={() => removeProcessing(i)}>
+                                <ActionIcon size="xl" color="red" className="ml-4" onClick={() => removeProcessing(i)}>
                                     <TrashIcon />
                                 </ActionIcon>
                             </div>
@@ -156,7 +156,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 ))}
 
                 <div className="mt-8 flex">
-                    <Button type="submit" size="xl" uppercase variant="outline" className="flex-grow">
+                    <Button type="submit" size="xl" uppercase className="flex-grow">
                         Salva
                     </Button>
                 </div>
