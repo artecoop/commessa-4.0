@@ -8,7 +8,7 @@ import { FetchResult, RunType } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Button, Select, Table, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, Grid, Select, Table, TextInput, Title, Text } from '@mantine/core';
 
 import { TrashIcon } from '@heroicons/react/outline';
 
@@ -59,30 +59,39 @@ const RunTypes: React.FC = () => {
             <Title order={1} mb="lg">
                 Tipi di avviamento
             </Title>
-            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+            <Text size="sm" weight={500}>
+                * Campi obbligatori
+            </Text>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex">
-                    <TextInput label="Nome" size="xl" variant="filled" className="flex-grow" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+            <form noValidate onSubmit={handleSubmit(onSubmit)}>
+                <Grid justify="center" align="center" mt="lg">
+                    <Grid.Col span={10}>
+                        <TextInput label="Nome" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+                    </Grid.Col>
 
-                    <Controller
-                        name="kind"
-                        control={control}
-                        rules={{ required: 'Il tipo è obbligatorio' }}
-                        render={({ field, fieldState }) => (
-                            <Select label="Tipo" size="xl" variant="filled" className="ml-4" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} data={kind} />
-                        )}
-                    />
-                </div>
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="kind"
+                            control={control}
+                            rules={{ required: 'Il tipo è obbligatorio' }}
+                            render={({ field, fieldState }) => (
+                                <Select label="Tipo" size="xl" variant="filled" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} data={kind} />
+                            )}
+                        />
+                    </Grid.Col>
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase className="flex-grow">
-                        Salva
-                    </Button>
-                    <Button size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset()}>
-                        Reset
-                    </Button>
-                </div>
+                    <Grid.Col span={11}>
+                        <Button type="submit" size="xl" uppercase fullWidth>
+                            Salva
+                        </Button>
+                    </Grid.Col>
+
+                    <Grid.Col span={1}>
+                        <Button size="xl" uppercase color="red" fullWidth onClick={() => reset()}>
+                            Reset
+                        </Button>
+                    </Grid.Col>
+                </Grid>
             </form>
 
             {runTypes && runTypes.data.length > 0 && (
@@ -94,16 +103,16 @@ const RunTypes: React.FC = () => {
                     <Table striped fontSize="lg">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Nome</th>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="w-16" />
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th className="action-1" />
                             </tr>
                         </thead>
                         <tbody>
                             {runTypes?.data.map(k => (
                                 <tr key={k.id}>
-                                    <td className="px-4 py-2">{k.name}</td>
-                                    <td className="px-4 py-2">{kind.find(x => x.value === k.kind)?.label}</td>
+                                    <td>{k.name}</td>
+                                    <td>{kind.find(x => x.value === k.kind)?.label}</td>
                                     <td>
                                         <ActionIcon color="red" size="lg" onClick={() => removeRunType(k.id as number)}>
                                             <TrashIcon />

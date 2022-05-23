@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 
 import { error } from '@lib/notification';
 
-import { useAuth } from '../contexts/auth';
+import { useAuth } from '@contexts/auth';
 
-import { Button, Center, Group, PasswordInput, TextInput, Title } from '@mantine/core';
+import { Button, Center, Group, PasswordInput, TextInput, Title, Image } from '@mantine/core';
 
 type Form = {
     username: string;
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
         <Center style={{ height: '100vh' }} p="xs">
             <div>
                 <Group mb="xl" position="center">
-                    <img src="/assets/logo.png" alt="Art&amp;Coop" title="Art&amp;Coop" style={{ width: '80px' }} />
+                    <Image src="/assets/logo.png" width={80} radius="sm" alt="Art&amp;Coop" title="Art&amp;Coop" />
                     <Title order={1} ml="md">
                         Art&amp;Coop Commessa
                     </Title>
@@ -64,10 +64,10 @@ const Login: React.FC = () => {
                         defaultValue="u2xE[2v66Rm~icZ9X5ILFEi!"
                         {...register('password', { required: 'La password è obbligatoria' })}
                         error={errors.password?.message}
-                        className="mt-4"
+                        mt="md"
                     />
 
-                    <Button type="submit" size="xl" uppercase className="mt-6 w-full">
+                    <Button type="submit" size="xl" uppercase mt="lg" fullWidth>
                         Accedi
                     </Button>
                 </form>

@@ -8,7 +8,7 @@ import { FetchResult, Paper } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Button, NumberInput, Select, Table, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, Grid, NumberInput, Select, Table, TextInput, Title, Text } from '@mantine/core';
 
 import { TrashIcon } from '@heroicons/react/outline';
 
@@ -31,6 +31,7 @@ const Papers: React.FC = () => {
     const onSubmit = async (input: Paper) => {
         try {
             await mutate(key, apiPost(url, input));
+            reset();
 
             success('Carta salvata con successo');
         } catch (e) {
@@ -55,94 +56,98 @@ const Papers: React.FC = () => {
             <Title order={1} mb="lg">
                 Carta
             </Title>
-            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+            <Text size="sm" weight={500}>
+                * Campi obbligatori
+            </Text>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex">
-                    <TextInput label="Carta" size="xl" variant="filled" className="flex-grow" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+            <form noValidate onSubmit={handleSubmit(onSubmit)}>
+                <Grid justify="center" align="center" mt="lg">
+                    <Grid.Col span={6}>
+                        <TextInput label="Carta" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+                    </Grid.Col>
 
-                    <Controller
-                        name="weight"
-                        control={control}
-                        rules={{ required: 'Le ore preventivate sono obbligatorie' }}
-                        render={({ field, fieldState }) => (
-                            <NumberInput
-                                label="Grammatura"
-                                size="xl"
-                                variant="filled"
-                                className="ml-4"
-                                required
-                                min={0}
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={fieldState.error?.message}
-                            />
-                        )}
-                    />
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="weight"
+                            control={control}
+                            rules={{ required: 'La grammatura è obbligatoria' }}
+                            render={({ field, fieldState }) => (
+                                <NumberInput label="Grammatura" size="xl" variant="filled" required min={0} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                            )}
+                        />
+                    </Grid.Col>
 
-                    <TextInput label="Formato" size="xl" variant="filled" className="ml-4" required {...register('format', { required: 'Il formato è obbligatorio' })} error={errors.format?.message} />
+                    <Grid.Col span={2}>
+                        <TextInput label="Formato" size="xl" variant="filled" required {...register('format', { required: 'Il formato è obbligatorio' })} error={errors.format?.message} />
+                    </Grid.Col>
 
-                    <Controller
-                        name="orientation"
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <Select
-                                label="Orientamento"
-                                size="xl"
-                                variant="filled"
-                                className="ml-4"
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={fieldState.error?.message}
-                                data={[
-                                    { value: 'long', label: 'Lato lungo' },
-                                    { value: 'short', label: 'Lato corto' }
-                                ]}
-                            />
-                        )}
-                    />
-                </div>
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="orientation"
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <Select
+                                    label="Orientamento"
+                                    size="xl"
+                                    variant="filled"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={fieldState.error?.message}
+                                    data={[
+                                        { value: 'long', label: 'Lato lungo' },
+                                        { value: 'short', label: 'Lato corto' }
+                                    ]}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase className="flex-grow">
-                        Salva
-                    </Button>
-                    <Button size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset()}>
-                        Reset
-                    </Button>
-                </div>
+                    <Grid.Col span={11}>
+                        <Button type="submit" size="xl" uppercase fullWidth>
+                            Salva
+                        </Button>
+                    </Grid.Col>
+
+                    <Grid.Col span={1}>
+                        <Button size="xl" uppercase color="red" fullWidth onClick={() => reset()}>
+                            Reset
+                        </Button>
+                    </Grid.Col>
+                </Grid>
             </form>
 
             <Title order={2} mt="xl">
                 Carte presenti
             </Title>
 
-            <Table striped fontSize="lg">
-                <thead>
-                    <tr>
-                        <th className="px-4 py-2">Carta</th>
-                        <th className="px-4 py-2">Peso</th>
-                        <th className="px-4 py-2">Formato</th>
-                        <th className="px-4 py-2">Orientamento</th>
-                        <th className="w-16" />
-                    </tr>
-                </thead>
-                <tbody>
-                    {papers?.data.map(p => (
-                        <tr key={p.id}>
-                            <td className="px-4 py-2">{p.name}</td>
-                            <td className="px-4 py-2">{p.weight}gr</td>
-                            <td className="px-4 py-2">{p.format}</td>
-                            <td className="px-4 py-2">{p.orientation ? (p.orientation === 'long' ? 'Lato lungo' : 'Lato corto') : '-'}</td>
-                            <td>
-                                <ActionIcon color="red" size="lg" onClick={() => removePaper(p.id as number)}>
-                                    <TrashIcon />
-                                </ActionIcon>
-                            </td>
+            {papers?.data && papers.data.length > 0 && (
+                <Table striped fontSize="lg">
+                    <thead>
+                        <tr>
+                            <th>Carta</th>
+                            <th>Peso</th>
+                            <th>Formato</th>
+                            <th>Orientamento</th>
+                            <th className="action-1" />
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {papers.data.map(p => (
+                            <tr key={p.id}>
+                                <td>{p.name}</td>
+                                <td>{p.weight}gr</td>
+                                <td>{p.format}</td>
+                                <td>{p.orientation ? (p.orientation === 'long' ? 'Lato lungo' : 'Lato corto') : '-'}</td>
+                                <td>
+                                    <ActionIcon color="red" size="lg" onClick={() => removePaper(p.id as number)}>
+                                        <TrashIcon />
+                                    </ActionIcon>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
         </Layout>
     );
 };

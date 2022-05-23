@@ -1,3 +1,4 @@
+import { Fragment, useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import useSWR, { useSWRConfig } from 'swr';
 
@@ -6,7 +7,7 @@ import { error, success } from '@lib/notification';
 
 import { Contract, FetchResult, Press, Paper, Varnish, RunType } from 'types';
 
-import { ActionIcon, Button, Checkbox, CheckboxGroup, NumberInput, Select, Table, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, Checkbox, CheckboxGroup, NumberInput, Select, Table, TextInput, Title, Text, Grid, SimpleGrid, Group } from '@mantine/core';
 
 import { PlusIcon, TrashIcon } from '@heroicons/react/outline';
 
@@ -26,61 +27,64 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
     const { data: runTypes } = useSWR<FetchResult<RunType[]>>(['/items/run_type', { filter: { kind: 'offset' } }]);
     const { data: varnishes } = useSWR<FetchResult<Varnish[]>>('/items/varnish');
 
+    const { control: contractControl, handleSubmit: contractHandleSubmit, setValue: contractSetValue } = useForm<Contract>();
     const {
-        handleSubmit,
-        register,
-        control,
-        formState: { errors }
-    } = useForm<Form>();
+        fields: pressFields,
+        append: appendPress,
+        remove: removePress
+    } = useFieldArray({
+        control: contractControl,
+        name: 'press'
+    });
 
-    const { fields, append, remove } = useFieldArray({
-        control,
+    const {
+        handleSubmit: realFormHandleSubmit,
+        register: realFormRegister,
+        control: realFormControl,
+        formState: { errors: realFormErrors }
+    } = useForm<Form>();
+    const {
+        fields: pantoneFields,
+        append: appendPantone,
+        remove: removePantone
+    } = useFieldArray({
+        control: realFormControl,
         name: 'pantones'
     });
 
-    const removePantone = (i: number) => {
-        if (confirm('Sei sicuro di voler eliminare questo pantone?')) {
-            remove(i);
+    useEffect(() => {
+        if (contract) {
+            contractSetValue('press', contract.press ?? undefined);
         }
-    };
+    }, [contract, contractSetValue]);
 
-    const { mutate } = useSWRConfig();
-
-    const addOffsetPrint = (input: Form) => {
+    const onSubmit = (input: Form) => {
         const { run_type, paper, varnish, ...rest } = input;
 
         const parsed = {
-            id: Math.round(Math.random() * 9999), //temporary
             run_type: runTypes?.data.find(r => r.id === +run_type),
             paper: papers?.data.find(p => p.id === +paper),
             varnish: varnishes?.data.find(v => v.id === +varnish),
             ...rest
         } as Press;
 
-        if (contract && !contract.press) {
-            contract.press = new Array<Press>();
+        if (parsed.colors && parsed.colors.length === 0) {
+            parsed.colors = undefined;
         }
 
-        contract?.press?.push(parsed);
-
-        success("Avviamento aggiunto all'elenco");
-    };
-
-    const removeOffsetPrint = async (id: number) => {
-        if (confirm('Sei sicuro di voler eliminare questo avviamento?')) {
-            const index = contract?.press?.findIndex(p => p.id === id);
-            if (index !== undefined && index > -1) {
-                contract?.press?.splice(index, 1);
-                success("Avviamento rimosso all'elenco");
-            }
+        if (parsed.pantones && parsed.pantones.length === 0) {
+            parsed.pantones = undefined;
         }
+
+        appendPress(parsed);
     };
 
-    const save = async () => {
+    const { mutate } = useSWRConfig();
+    const saveContract = async (input: Contract) => {
         const url = `/items/contracts/${contract?.id}`;
 
         try {
-            await mutate<FetchResult<Contract>>([url, queryFields], apiPatch(url, contract));
+            await mutate([url, queryFields], apiPatch(url, input));
 
             success('Avviamenti salvati con successo');
         } catch (e) {
@@ -90,170 +94,182 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
 
     return (
         <>
-            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+            <Text size="sm" weight={500}>
+                * Campi obbligatori
+            </Text>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(addOffsetPrint)}>
-                <div className="flex">
-                    <Controller
-                        name="run_type"
-                        control={control}
-                        rules={{ required: 'Il tipo di avviamento è obbligatorio' }}
-                        render={({ field, fieldState }) => (
-                            <Select
-                                label="Avviamento"
-                                size="xl"
-                                variant="filled"
-                                required
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={fieldState.error?.message}
-                                data={runTypes?.data.map(r => ({ value: r.id?.toString() || '', label: r.name })) ?? []}
-                            />
-                        )}
-                    />
+            <form noValidate onSubmit={realFormHandleSubmit(onSubmit)}>
+                <Grid justify="center" align="center" mt="lg">
+                    <Grid.Col span={1}>
+                        <Controller
+                            name="run_type"
+                            control={realFormControl}
+                            rules={{ required: 'Il tipo di avviamento è obbligatorio' }}
+                            render={({ field, fieldState }) => (
+                                <Select
+                                    label="Avviamento"
+                                    size="xl"
+                                    variant="filled"
+                                    required
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={fieldState.error?.message}
+                                    data={runTypes?.data.map(r => ({ value: r.id?.toString() || '', label: r.name })) ?? []}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
 
-                    <TextInput label="Descrizione" size="xl" variant="filled" className="ml-4 flex-grow" {...register('description')} />
+                    <Grid.Col span={7}>
+                        <TextInput label="Descrizione" size="xl" variant="filled" {...realFormRegister('description')} />
+                    </Grid.Col>
 
-                    <Controller
-                        name="paper"
-                        control={control}
-                        rules={{ required: 'La carta è obbligatoria' }}
-                        render={({ field, fieldState }) => (
-                            <Select
-                                label="Carta"
-                                size="xl"
-                                variant="filled"
-                                className="ml-4"
-                                required
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={fieldState.error?.message}
-                                data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: `${p.name} ${p.weight}gr ${p.format} ${p.orientation ?? ''}` })) || []}
-                            />
-                        )}
-                    />
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="paper"
+                            control={realFormControl}
+                            rules={{ required: 'La carta è obbligatoria' }}
+                            render={({ field, fieldState }) => (
+                                <Select
+                                    label="Carta"
+                                    size="xl"
+                                    variant="filled"
+                                    required
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={fieldState.error?.message}
+                                    data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: `${p.name} ${p.weight}gr ${p.format} ${p.orientation ?? ''}` })) || []}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
 
-                    <Controller
-                        name="yield"
-                        control={control}
-                        rules={{ required: 'La resa è obbligatoria' }}
-                        render={({ field, fieldState }) => (
-                            <NumberInput label="Resa" size="xl" variant="filled" className="ml-4" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
-                        )}
-                    />
-                </div>
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="yield"
+                            control={realFormControl}
+                            rules={{ required: 'La resa è obbligatoria' }}
+                            render={({ field, fieldState }) => (
+                                <NumberInput label="Resa" size="xl" variant="filled" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                            )}
+                        />
+                    </Grid.Col>
 
-                <div className="mt-8 flex">
-                    <Controller
-                        name="colors"
-                        control={control}
-                        render={({ field }) => (
-                            <CheckboxGroup size="xl" label="Colori" value={field.value} onChange={field.onChange} className="ml-4">
-                                <Checkbox value="c" label="Cyan" />
-                                <Checkbox value="m" label="Magenta" />
-                                <Checkbox value="y" label="Giallo" />
-                                <Checkbox value="k" label="Nero" />
-                            </CheckboxGroup>
-                        )}
-                    />
+                    <Grid.Col span={3}>
+                        <Controller
+                            name="colors"
+                            control={realFormControl}
+                            render={({ field }) => (
+                                <CheckboxGroup size="xl" label="Colori" value={field.value} onChange={field.onChange}>
+                                    <Checkbox value="c" label="Cyan" />
+                                    <Checkbox value="m" label="Magenta" />
+                                    <Checkbox value="y" label="Giallo" />
+                                    <Checkbox value="k" label="Nero" />
+                                </CheckboxGroup>
+                            )}
+                        />
+                    </Grid.Col>
 
-                    <Controller
-                        name="varnish"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                label="Vernice"
-                                size="xl"
-                                variant="filled"
-                                className="ml-4"
-                                value={field.value}
-                                onChange={field.onChange}
-                                data={varnishes?.data.map(r => ({ value: (r.id as number).toString(), label: r.name })) ?? []}
-                            />
-                        )}
-                    />
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="varnish"
+                            control={realFormControl}
+                            render={({ field }) => (
+                                <Select
+                                    label="Vernice"
+                                    size="xl"
+                                    variant="filled"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    data={varnishes?.data.map(r => ({ value: (r.id as number).toString(), label: r.name })) ?? []}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
 
-                    <div className="ml-8 flex">
-                        <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" variant="outline" className="mt-12" uppercase onClick={() => append({})}>
+                    <Grid.Col span={7}>
+                        <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" variant="outline" uppercase onClick={() => appendPantone({})}>
                             Aggiungi Pantone
                         </Button>
 
-                        <div className="grid grid-cols-3 gap-4">
-                            {fields.map((v, i) => (
-                                <div key={v.id} className="flex items-end">
+                        <SimpleGrid cols={4}>
+                            {pantoneFields.map((v, i) => (
+                                <Group key={v.id}>
                                     <TextInput
                                         label="Pantone"
                                         size="xl"
                                         variant="filled"
-                                        className="ml-4 flex-grow"
                                         required
-                                        {...register(`pantones.${i}.name` as const, { required: 'Il pantone è obbligatorio se aggiunto' })}
-                                        error={errors.pantones?.[i].name?.message}
+                                        {...realFormRegister(`pantones.${i}.name` as const, { required: 'Il pantone è obbligatorio se aggiunto' })}
+                                        error={realFormErrors.pantones?.[i].name?.message}
                                     />
 
-                                    <ActionIcon size="xl" color="red" className="ml-2 mb-2" onClick={() => removePantone(i)}>
+                                    <ActionIcon size="xl" color="red" onClick={() => removePantone(i)}>
                                         <TrashIcon />
                                     </ActionIcon>
-                                </div>
+                                </Group>
                             ))}
-                        </div>
-                    </div>
-                </div>
+                        </SimpleGrid>
+                    </Grid.Col>
 
-                <div className="mt-4">
-                    <Button type="submit" size="sm" color="lime" variant="outline" uppercase className="w-full">
-                        Aggiungi avviamento
-                    </Button>
-                </div>
+                    <Grid.Col>
+                        <Button type="submit" size="sm" color="lime" variant="outline" uppercase fullWidth>
+                            Aggiungi avviamento
+                        </Button>
+                    </Grid.Col>
+                </Grid>
             </form>
 
-            {contract?.press && contract.press.filter(p => p.run_type?.kind === 'offset').length > 0 && (
+            {pressFields.filter(p => p.run_type?.kind === 'offset').length > 0 && (
                 <>
-                    <Title order={2} className="my-4">
+                    <Title order={2} my="lg">
                         Avviamenti
                     </Title>
+
                     <Table striped fontSize="lg">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Descrizione</th>
-                                <th className="px-4 py-2">Carta</th>
-                                <th className="px-4 py-2">Resa</th>
-                                <th className="px-4 py-2">Colore</th>
-                                <th className="px-4 py-2">Pantoni</th>
-                                <th className="px-4 py-2">Vernice</th>
-                                <th className="w-12" />
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                                <th>Carta</th>
+                                <th>Resa</th>
+                                <th>Colore</th>
+                                <th>Pantoni</th>
+                                <th>Vernice</th>
+                                <th className="action-1" />
                             </tr>
                         </thead>
                         <tbody>
-                            {contract?.press
-                                ?.filter(p => p.run_type?.kind === 'offset')
-                                .map(p => (
-                                    <tr key={p.id}>
-                                        <td className="px-4 py-2">{p.run_type.name}</td>
-                                        <td className="px-4 py-2">{p.description}</td>
-                                        <td className="px-4 py-2">
-                                            {p.paper.name} {p.paper.weight}gr {p.paper.format} {p.paper.orientation}
-                                        </td>
-                                        <td className="px-4 py-2">{p.yield}</td>
-                                        <td className="px-4 py-2">{p.colors.map(c => c.toUpperCase())}</td>
-                                        <td className="px-4 py-2">{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
-                                        <td className="px-4 py-2">{p.varnish?.name ?? '-'}</td>
-                                        <td>
-                                            <ActionIcon color="red" size="lg" onClick={() => removeOffsetPrint(p.id as number)}>
-                                                <TrashIcon />
-                                            </ActionIcon>
-                                        </td>
-                                    </tr>
-                                ))}
+                            {pressFields.map((p, i) => (
+                                <Fragment key={p.id}>
+                                    {p.run_type?.kind === 'offset' && (
+                                        <tr>
+                                            <td>{p.run_type?.name}</td>
+                                            <td>{p.description}</td>
+                                            <td>
+                                                {p.paper?.name} {p.paper?.weight}gr {p.paper?.format} {p.paper?.orientation}
+                                            </td>
+                                            <td>{p.yield}</td>
+                                            <td>{p.colors?.map(c => c.toUpperCase())}</td>
+                                            <td>{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
+                                            <td>{p.varnish?.name ?? '-'}</td>
+                                            <td>
+                                                <ActionIcon color="red" size="lg" onClick={() => removePress(i)}>
+                                                    <TrashIcon />
+                                                </ActionIcon>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </Fragment>
+                            ))}
                         </tbody>
                     </Table>
-
-                    <Button size="xl" uppercase className="mt-8 w-full" onClick={() => save()}>
-                        Salva
-                    </Button>
                 </>
             )}
+
+            <Button size="xl" uppercase onClick={contractHandleSubmit(saveContract)} fullWidth mt="xl">
+                Salva
+            </Button>
         </>
     );
 };

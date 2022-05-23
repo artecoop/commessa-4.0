@@ -7,6 +7,7 @@ import { FetchResult, LoginResult, Profile } from 'types';
 type ContextProps = {
     isLoading?: boolean;
     isAuthenticated?: boolean;
+
     profile?: Profile;
     login?(email: string, password: string): Promise<void>;
     logout?(): Promise<void>;
@@ -29,8 +30,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
             const token = JSON.parse(sessionToken) as LoginResult;
 
             if (token.expires < Date.now()) {
-                sessionStorage.removeItem(TOKEN_KEY);
-                sessionStorage.removeItem(PROFILE_KEY);
+                logout();
                 return;
             }
 
@@ -55,6 +55,15 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
             sessionStorage.setItem(TOKEN_KEY, JSON.stringify(result.data));
 
             const me = await apiGet<FetchResult<Profile>>('/users/me');
+
+            const roles = [
+                { id: '433113b1-84b2-4e8a-91c5-521749bcb244', name: 'Administrator' },
+                { id: 'a6830522-82e0-4e79-bd53-a02b6bf04039', name: 'Editor' },
+                { id: 'f4127167-2845-41ab-bd4c-bee8a34c0066', name: 'Worker' }
+            ];
+
+            me.data.role = roles.find(r => r.id === me.data.role)?.name || 'Worker';
+
             sessionStorage.setItem(PROFILE_KEY, JSON.stringify(me.data));
 
             setIsAuthenticated(true);

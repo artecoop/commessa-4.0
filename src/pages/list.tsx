@@ -5,7 +5,9 @@ import dayjs from 'dayjs';
 import { Contract, FetchResult } from 'types';
 
 import Layout from '@components/_layout';
-import { ActionIcon, Table, Title } from '@mantine/core';
+
+import { ActionIcon, Anchor, Group, Table, Title } from '@mantine/core';
+
 import { EyeIcon, PencilIcon, PlusIcon, PrinterIcon } from '@heroicons/react/outline';
 
 const Commesse: React.FC = () => {
@@ -13,43 +15,47 @@ const Commesse: React.FC = () => {
 
     return (
         <Layout title="Commesse">
-            <div className="flex items-center">
+            <Group>
                 <Title order={1}>Commesse</Title>
 
-                <ActionIcon color="green" component={Link} to="/commesse/manage" className="ml-4">
+                <ActionIcon color="primary" variant="filled" component={Link} to="/commesse/manage">
                     <PlusIcon />
                 </ActionIcon>
-            </div>
+            </Group>
 
             <Table striped fontSize="lg" mt="xl">
                 <thead>
                     <tr>
-                        <th className="px-4 py-2">Titolo</th>
-                        <th className="px-4 py-2">Data</th>
-                        <th className="px-4 py-2">Cliente</th>
-                        <th className="px-4 py-2">Consegna</th>
-                        <th className="w-44" />
+                        <th>Titolo</th>
+                        <th>Data</th>
+                        <th>Cliente</th>
+                        <th>Consegna</th>
+                        <th className="action-3" />
                     </tr>
                 </thead>
                 <tbody>
                     {contracts?.data.map(c => (
                         <tr key={c.id}>
-                            <td className="px-4 py-2">{c.title}</td>
-                            <td className="px-4 py-2">{dayjs(c.date).format('DD/MM/YYYY')}</td>
-                            <td className="px-4 py-2">{c.customer}</td>
-                            <td className="px-4 py-2">{c.desired_delivery ? dayjs(c.date).format('DD/MM/YYYY') : '-'}</td>
                             <td>
-                                <div className="flex">
+                                <Anchor component={Link} to={`manage/${c.id}`} size="lg">
+                                    <b>{c.title}</b>
+                                </Anchor>
+                            </td>
+                            <td>{dayjs(c.date).format('DD/MM/YYYY')}</td>
+                            <td>{c.customer}</td>
+                            <td>{c.desired_delivery ? dayjs(c.desired_delivery).format('DD/MM/YYYY') : '-'}</td>
+                            <td>
+                                <Group spacing="xs">
                                     <ActionIcon color="primary" size="lg" component={Link} to={`manage/${c.id}`}>
                                         <PencilIcon />
                                     </ActionIcon>
-                                    <ActionIcon size="lg" className="ml-4" color="blue" component={Link} to={`/operative/${c.id}`}>
+                                    <ActionIcon size="lg" color="blue" component={Link} to={`/operative/${c.id}`}>
                                         <EyeIcon />
                                     </ActionIcon>
-                                    <ActionIcon size="lg" className="ml-4" color="red" onClick={() => window.open(`/print/${c.id}`, 'printWindow', 'popup')}>
+                                    <ActionIcon size="lg" color="red" onClick={() => window.open(`/print/${c.id}`, 'printWindow', 'popup')}>
                                         <PrinterIcon />
                                     </ActionIcon>
-                                </div>
+                                </Group>
                             </td>
                         </tr>
                     ))}

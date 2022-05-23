@@ -8,7 +8,7 @@ import { error, success } from '@lib/notification';
 
 import { Contract, FetchResult } from 'types';
 
-import { Button, NumberInput, Textarea, TextInput } from '@mantine/core';
+import { Button, NumberInput, Textarea, TextInput, Text, Grid } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 
 import { CalendarIcon } from '@heroicons/react/outline';
@@ -64,142 +64,135 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
 
     return (
         <>
-            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+            <Text size="sm" weight={500}>
+                * Campi obbligatori
+            </Text>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex">
-                    <Controller
-                        name="number"
-                        control={control}
-                        rules={{ required: 'Il numero della commessa è obbligatorio' }}
-                        render={({ field, fieldState }) => (
-                            <NumberInput
-                                label="Numero"
-                                size="xl"
-                                variant="filled"
-                                required
-                                min={1}
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={fieldState.error?.message}
-                                disabled={contract !== undefined}
-                            />
-                        )}
-                    />
-
-                    <Controller
-                        name="date"
-                        control={control}
-                        rules={{ required: 'La data della commessa è obbligatoria' }}
-                        render={({ field, fieldState }) => (
-                            <DatePicker
-                                label="Data"
-                                size="xl"
-                                variant="filled"
-                                required
-                                inputFormat="DD/MM/YYYY"
-                                className="ml-4"
-                                icon={<CalendarIcon className="icon-field-left" />}
-                                value={field.value && new Date(field.value)}
-                                defaultValue={new Date()}
-                                onChange={field.onChange}
-                                error={fieldState.error?.message}
-                                disabled={contract !== undefined}
-                            />
-                        )}
-                    />
-
-                    <TextInput
-                        label="Cliente"
-                        size="xl"
-                        variant="filled"
-                        className="ml-4 flex-grow"
-                        required
-                        {...register('customer', { required: 'Il cliente è obbligatorio' })}
-                        error={errors.customer?.message}
-                    />
-                </div>
-
-                <div className="mt-8">
-                    <TextInput label="Titolo" size="xl" variant="filled" required {...register('title', { required: 'Il titolo è obbligatorio' })} error={errors.title?.message} />
-
-                    <Textarea label="Descrizione" size="xl" className="mt-4" variant="filled" {...register('description')} />
-                </div>
-
-                <div className="mt-8 flex">
-                    <Controller
-                        name="desired_delivery"
-                        control={control}
-                        render={({ field }) => (
-                            <DatePicker
-                                label="Data consegna desiderata"
-                                size="xl"
-                                variant="filled"
-                                inputFormat="DD/MM/YYYY"
-                                icon={<CalendarIcon className="icon-field-left" />}
-                                value={field.value && new Date(field.value)}
-                                onChange={field.onChange}
-                            />
-                        )}
-                    />
-
-                    <TextInput label="Preventivo" size="xl" variant="filled" className="ml-4" {...register('estimate')} />
-
-                    <Controller
-                        name="estimate_date"
-                        control={control}
-                        render={({ field }) => (
-                            <DatePicker
-                                label="Data preventivo"
-                                size="xl"
-                                variant="filled"
-                                inputFormat="DD/MM/YYYY"
-                                className="ml-4"
-                                icon={<CalendarIcon className="icon-field-left" />}
-                                value={field.value && new Date(field.value)}
-                                onChange={field.onChange}
-                            />
-                        )}
-                    />
-
-                    <TextInput
-                        label="Agente"
-                        size="xl"
-                        variant="filled"
-                        className="ml-4 flex-grow"
-                        required
-                        {...register('representative', { required: "L'agente è obbligatorio" })}
-                        error={errors.representative?.message}
-                    />
-                </div>
-
-                <Controller
-                    name="quantity"
-                    control={control}
-                    rules={{ required: 'La quantità è obbligatoria' }}
-                    render={({ field, fieldState }) => (
-                        <NumberInput
-                            label="Quantità"
-                            size="xl"
-                            variant="filled"
-                            className="mt-8 w-full"
-                            required
-                            min={1}
-                            value={field.value}
-                            onChange={field.onChange}
-                            error={fieldState.error?.message}
+            <form noValidate onSubmit={handleSubmit(onSubmit)}>
+                <Grid justify="center" align="center" mt="lg">
+                    <Grid.Col span={3}>
+                        <Controller
+                            name="number"
+                            control={control}
+                            rules={{ required: 'Il numero della commessa è obbligatorio' }}
+                            render={({ field, fieldState }) => (
+                                <NumberInput
+                                    label="Numero"
+                                    size="xl"
+                                    variant="filled"
+                                    required
+                                    min={1}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={fieldState.error?.message}
+                                    disabled={contract !== undefined}
+                                />
+                            )}
                         />
-                    )}
-                />
+                    </Grid.Col>
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" color="primary" uppercase variant="filled" className="flex-grow">
-                        Salva
-                    </Button>
-                    <Button size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset(contract)}>
-                        Reset
-                    </Button>
-                </div>
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="date"
+                            control={control}
+                            rules={{ required: 'La data della commessa è obbligatoria' }}
+                            render={({ field, fieldState }) => (
+                                <DatePicker
+                                    label="Data"
+                                    size="xl"
+                                    variant="filled"
+                                    required
+                                    inputFormat="DD/MM/YYYY"
+                                    icon={<CalendarIcon className="icon-field-left" />}
+                                    value={field.value && new Date(field.value)}
+                                    defaultValue={new Date()}
+                                    onChange={v => field.onChange(v)}
+                                    error={fieldState.error?.message}
+                                    disabled={contract !== undefined}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={7}>
+                        <TextInput label="Cliente" size="xl" variant="filled" required {...register('customer', { required: 'Il cliente è obbligatorio' })} error={errors.customer?.message} />
+                    </Grid.Col>
+
+                    <Grid.Col>
+                        <TextInput label="Titolo" size="xl" variant="filled" required {...register('title', { required: 'Il titolo è obbligatorio' })} error={errors.title?.message} />
+                    </Grid.Col>
+
+                    <Grid.Col>
+                        <Textarea label="Descrizione" size="xl" variant="filled" {...register('description')} />
+                    </Grid.Col>
+
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="desired_delivery"
+                            control={control}
+                            render={({ field }) => (
+                                <DatePicker
+                                    label="Data consegna desiderata"
+                                    size="xl"
+                                    variant="filled"
+                                    inputFormat="DD/MM/YYYY"
+                                    icon={<CalendarIcon className="icon-field-left" />}
+                                    value={field.value && new Date(field.value)}
+                                    onChange={field.onChange}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={2}>
+                        <TextInput label="Preventivo" size="xl" variant="filled" {...register('estimate')} />
+                    </Grid.Col>
+
+                    <Grid.Col span={2}>
+                        <Controller
+                            name="estimate_date"
+                            control={control}
+                            render={({ field }) => (
+                                <DatePicker
+                                    label="Data preventivo"
+                                    size="xl"
+                                    variant="filled"
+                                    inputFormat="DD/MM/YYYY"
+                                    icon={<CalendarIcon className="icon-field-left" />}
+                                    value={field.value && new Date(field.value)}
+                                    onChange={field.onChange}
+                                />
+                            )}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={6}>
+                        <TextInput label="Agente" size="xl" variant="filled" required {...register('representative', { required: "L'agente è obbligatorio" })} error={errors.representative?.message} />
+                    </Grid.Col>
+
+                    <Grid.Col>
+                        <Controller
+                            name="quantity"
+                            control={control}
+                            rules={{ required: 'La quantità è obbligatoria' }}
+                            render={({ field, fieldState }) => (
+                                <NumberInput label="Quantità" size="xl" variant="filled" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                            )}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={11}>
+                        <Button type="submit" size="xl" uppercase fullWidth>
+                            Salva
+                        </Button>
+                    </Grid.Col>
+
+                    <Grid.Col span={1}>
+                        <Button size="xl" uppercase color="red" fullWidth onClick={() => reset(contract)}>
+                            Reset
+                        </Button>
+                    </Grid.Col>
+                </Grid>
             </form>
         </>
     );

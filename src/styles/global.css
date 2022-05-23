@@ -1,9 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.action-1 {
+    width: 3em;
+}
 
-@layer components {
-    .icon-field-left {
-        @apply h-6 w-6;
-    }
+.action-3 {
+    width: 11em;
+}
+
+.action-operative {
+    width: 9em;
+}
+
+.icon-field-left {
+    width: 1.8em;
 }

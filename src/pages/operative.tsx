@@ -11,7 +11,7 @@ import { Contract, FetchResult, Press, Processing } from 'types';
 import Layout from '@components/_layout';
 import Notes from '@components/notes';
 
-import { ActionIcon, Divider, Modal, NumberInput, SimpleGrid, Table, Title } from '@mantine/core';
+import { ActionIcon, Divider, Group, Modal, NumberInput, SimpleGrid, Table, Title } from '@mantine/core';
 
 import { CheckIcon, PencilAltIcon } from '@heroicons/react/outline';
 
@@ -29,28 +29,28 @@ const Operative: React.FC = () => {
         const working_hours = (document.getElementById(`processing_working_hours_${id}`) as HTMLInputElement).value;
         const actual_quantity = (document.getElementById(`processing_actual_quantity_${id}`) as HTMLInputElement).value;
 
-        if (setup_hours || working_hours || actual_quantity) {
-            const processing = contract?.data.processings?.find(p => p.id === id);
-            if (processing) {
-                processing.setup_hours = setup_hours && +setup_hours > 0 ? +setup_hours : undefined;
-                processing.working_hours = working_hours && +working_hours > 0 ? +working_hours : undefined;
-                processing.actual_quantity = actual_quantity && +actual_quantity > 0 ? +actual_quantity : undefined;
+        const processing = contract?.data.processings?.find(p => p.id === id);
+        if (processing) {
+            processing.setup_hours = setup_hours && +setup_hours > 0 ? +setup_hours : null;
+            processing.working_hours = working_hours && +working_hours > 0 ? +working_hours : null;
+            processing.actual_quantity = actual_quantity && +actual_quantity > 0 ? +actual_quantity : null;
 
-                await saveContract();
-            }
+            await saveContract();
         }
     };
 
     const savePress = async (id: number) => {
         const working_hours = (document.getElementById(`press_working_hours_${id}`) as HTMLInputElement).value;
+        const consumed_sheets = (document.getElementById(`press_consumed_sheets_${id}`) as HTMLInputElement).value;
 
-        if (working_hours) {
-            const press = contract?.data.press?.find(p => p.id === id);
-            if (press) {
-                press.working_hours = working_hours && +working_hours > 0 ? +working_hours : undefined;
+        console.log(working_hours, consumed_sheets);
 
-                await saveContract();
-            }
+        const press = contract?.data.press?.find(p => p.id === id);
+        if (press) {
+            press.working_hours = working_hours && +working_hours > 0 ? +working_hours : null;
+            press.consumed_sheets = consumed_sheets && +consumed_sheets > 0 ? +consumed_sheets : null;
+
+            await saveContract();
         }
     };
 
@@ -82,7 +82,12 @@ const Operative: React.FC = () => {
                 {contract.data.title}
             </Title>
             {contract.data.description && <>{contract.data.description}</>}
-            <SimpleGrid cols={4} mt="xl">
+
+            <SimpleGrid cols={5} mt="xl">
+                <div>
+                    <b>Qauntità</b>: {contract.data.quantity}
+                </div>
+
                 <div>
                     <b>Cliente</b>: {contract.data.customer}
                 </div>
@@ -118,11 +123,11 @@ const Operative: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Nome</th>
-                                <th className="w-48 px-4 py-2">Ore preventivate</th>
-                                <th className="w-48 px-4 py-2">Ore lavorate</th>
-                                <th className="w-40 px-4 py-2" />
+                                <th>Tipo</th>
+                                <th>Nome</th>
+                                <th>Ore preventivate</th>
+                                <th>Ore lavorate</th>
+                                <th className="action-operative" />
                             </tr>
                         </thead>
                         <tbody>
@@ -130,22 +135,24 @@ const Operative: React.FC = () => {
                                 ?.filter(p => p.process_definition?.pre)
                                 ?.map(p => (
                                     <tr key={p.id}>
-                                        <td className="px-4 py-2 font-bold">{p.process_definition?.name}</td>
-                                        <td className="px-4 py-2">{p.name}</td>
-                                        <td className="px-4 py-2">{p.estimate_hours}</td>
-                                        <td className="px-4 py-2">
-                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours} />
+                                        <td>
+                                            <b>{p.process_definition?.name}</b>
                                         </td>
-                                        <td className="px-4 py-2">
-                                            <div className="ml-4 flex self-center">
+                                        <td>{p.name}</td>
+                                        <td>{p.estimate_hours}</td>
+                                        <td>
+                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours ?? undefined} />
+                                        </td>
+                                        <td>
+                                            <Group spacing="xs">
                                                 <ActionIcon color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
                                                     <CheckIcon />
                                                 </ActionIcon>
 
-                                                <ActionIcon color="primary" size="xl" className="ml-4" onClick={() => setCurrentNotesHolder(p)}>
+                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
                                                     <PencilAltIcon />
                                                 </ActionIcon>
-                                            </div>
+                                            </Group>
                                         </td>
                                     </tr>
                                 ))}
@@ -168,15 +175,17 @@ const Operative: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Colori</th>
-                                <th className="px-4 py-2">Pantoni</th>
-                                <th className="px-4 py-2">Verniciatura</th>
-                                <th className="px-4 py-2">Resa</th>
-                                <th className="px-4 py-2">Fogli</th>
-                                <th className="px-4 py-2">Carta</th>
-                                <th className="w-48 px-4 py-2">Ore lavorate</th>
-                                <th className="w-40 px-4 py-2" />
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                                <th>Colori</th>
+                                <th>Pantoni</th>
+                                <th>Verniciatura</th>
+                                <th>Resa</th>
+                                <th>Fogli</th>
+                                <th>Carta</th>
+                                <th>Ore lavorate</th>
+                                <th>Fogli usati</th>
+                                <th className="action-operative" />
                             </tr>
                         </thead>
                         <tbody>
@@ -184,28 +193,36 @@ const Operative: React.FC = () => {
                                 .filter(p => p.run_type?.kind === 'offset')
                                 .map(op => (
                                     <tr key={op.id}>
-                                        <td className="px-4 py-2 font-bold">{op.run_type?.name}</td>
-                                        <td className="px-4 py-2">{op.colors.map(c => c.toUpperCase())}</td>
-                                        <td className="px-4 py-2">{op.pantones?.map(pa => pa.name).join(', ')}</td>
-                                        <td className="px-4 py-2">{op.varnish?.name}</td>
-                                        <td className="px-4 py-2">{op.yield}</td>
-                                        <td className="px-4 py-2">{op.run_type?.name !== 'Volta' ? Math.ceil(contract.data.quantity / op.yield) : '-'}</td>
-                                        <td className="px-4 py-2">
+                                        <td>
+                                            <b>{op.run_type?.name}</b>
+                                        </td>
+                                        <td>
+                                            <b>{op.description}</b>
+                                        </td>
+                                        <td>{op.colors?.map(c => c.toUpperCase())}</td>
+                                        <td>{op.pantones?.map(pa => pa.name).join(', ')}</td>
+                                        <td>{op.varnish?.name}</td>
+                                        <td>{op.yield}</td>
+                                        <td>{op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0 ? Math.ceil(contract.data.quantity / op.yield) : '-'}</td>
+                                        <td>
                                             {op.paper.name} {op.paper.weight}gr {op.paper.format} {op.paper.orientation}
                                         </td>
-                                        <td className="px-4 py-2">
-                                            <NumberInput id={`press_working_hours_${op.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={op.working_hours} />
+                                        <td>
+                                            <NumberInput id={`press_working_hours_${op.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={op.working_hours ?? undefined} />
                                         </td>
-                                        <td className="px-4 py-2">
-                                            <div className="ml-4 flex self-center">
+                                        <td>
+                                            <NumberInput id={`press_consumed_sheets_${op.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={op.consumed_sheets ?? undefined} />
+                                        </td>
+                                        <td>
+                                            <Group spacing="xs">
                                                 <ActionIcon color="green" size="xl" onClick={() => savePress(op.id as number)}>
                                                     <CheckIcon />
                                                 </ActionIcon>
 
-                                                <ActionIcon color="primary" size="xl" className="ml-4" onClick={() => setCurrentNotesHolder(op)}>
+                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(op)}>
                                                     <PencilAltIcon />
                                                 </ActionIcon>
-                                            </div>
+                                            </Group>
                                         </td>
                                     </tr>
                                 ))}
@@ -214,8 +231,14 @@ const Operative: React.FC = () => {
 
                     <Title order={3} mt="xl">
                         Lastre:&nbsp;
-                        {contract.data.press.filter(p => p.run_type?.kind === 'offset').flatMap(op => op.colors).length +
-                            contract.data.press.filter(p => p.run_type?.kind === 'offset').flatMap(op => op.pantones).length +
+                        {contract.data.press
+                            .filter(p => p.run_type?.kind === 'offset')
+                            .flatMap(op => op.colors)
+                            .filter(op => op && op.length > 0).length +
+                            contract.data.press
+                                .filter(p => p.run_type?.kind === 'offset')
+                                .flatMap(op => op.pantones)
+                                .filter(op => op !== null).length +
                             contract.data.press
                                 .filter(p => p.run_type?.kind === 'offset')
                                 .flatMap(op => op.varnish)
@@ -223,7 +246,7 @@ const Operative: React.FC = () => {
                         &nbsp;- Fogli:&nbsp;
                         {contract.data.press
                             .filter(p => p.run_type?.kind === 'offset')
-                            .filter(op => op.run_type?.name !== 'Volta')
+                            .filter(op => op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0)
                             .reduce((acc, curr) => acc + Math.ceil(contract.data.quantity / curr.yield), 0)}
                     </Title>
                 </>
@@ -243,12 +266,15 @@ const Operative: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Descrizione</th>
-                                <th className="px-4 py-2">Colori</th>
-                                <th className="px-4 py-2">Resa</th>
-                                <th className="px-4 py-2">Fogli</th>
-                                <th className="px-4 py-2">Carta</th>
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                                <th>Colori</th>
+                                <th>Resa</th>
+                                <th>Fogli</th>
+                                <th>Carta</th>
+                                <th>Ore lavorate</th>
+                                <th>Fogli usati</th>
+                                <th className="action-operative" />
                             </tr>
                         </thead>
                         <tbody>
@@ -256,16 +282,40 @@ const Operative: React.FC = () => {
                                 .filter(p => p.run_type?.kind === 'digital')
                                 .map(dp => (
                                     <tr key={dp.id}>
-                                        <td className="px-4 py-2 font-bold">{dp.run_type?.name}</td>
-                                        <td className="px-4 py-2">{dp.description}</td>
-                                        <td className="px-4 py-2">{dp.colors.length > 1 ? 'Colori' : 'B/N'}</td>
-                                        <td className="px-4 py-2">{dp.yield}</td>
-                                        <td className="px-4 py-2">{dp.sheets}</td>
-                                        <td className="px-4 py-2">{dp.paper.name}</td>
+                                        <td>
+                                            <b>{dp.run_type?.name}</b>
+                                        </td>
+                                        <td>{dp.description}</td>
+                                        <td>{dp.colors && dp.colors.length > 1 ? 'Colori' : 'B/N'}</td>
+                                        <td>{dp.yield}</td>
+                                        <td>{dp.sheets}</td>
+                                        <td>{dp.paper.name}</td>
+                                        <td>
+                                            <NumberInput id={`press_working_hours_${dp.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={dp.working_hours ?? undefined} />
+                                        </td>
+                                        <td>
+                                            <NumberInput id={`press_consumed_sheets_${dp.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={dp.consumed_sheets ?? undefined} />
+                                        </td>
+                                        <td>
+                                            <Group spacing="xs">
+                                                <ActionIcon color="green" size="xl" onClick={() => savePress(dp.id as number)}>
+                                                    <CheckIcon />
+                                                </ActionIcon>
+
+                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(dp)}>
+                                                    <PencilAltIcon />
+                                                </ActionIcon>
+                                            </Group>
+                                        </td>
                                     </tr>
                                 ))}
                         </tbody>
                     </Table>
+
+                    <Title order={3} mt="xl">
+                        Fogli:&nbsp;
+                        {contract.data.press.filter(p => p.run_type?.kind === 'digital').reduce((acc, curr) => acc + (curr.sheets || 0), 0)}
+                    </Title>
                 </>
             )}
 
@@ -283,14 +333,14 @@ const Operative: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Descrizione</th>
-                                <th className="w-48 px-4 py-2">Ore preventivate</th>
-                                <th className="w-48 px-4 py-2">Ore setup</th>
-                                <th className="w-48 px-4 py-2">Ore lavorazione</th>
-                                <th className="w-48 px-4 py-2">Quantità</th>
-                                <th className="w-48 px-4 py-2">Quantità effettiva</th>
-                                <th className="w-24 px-4 py-2" />
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                                <th>Ore preventivate</th>
+                                <th>Ore setup</th>
+                                <th>Ore lavorazione</th>
+                                <th>Quantità</th>
+                                <th>Quantità effettiva</th>
+                                <th className="action-operative" />
                             </tr>
                         </thead>
                         <tbody>
@@ -298,29 +348,31 @@ const Operative: React.FC = () => {
                                 .filter(p => !p.process_definition?.pre)
                                 .map(p => (
                                     <tr key={p.id}>
-                                        <td className="px-4 py-2 font-bold">{p.process_definition?.name}</td>
-                                        <td className="px-4 py-2">{p.name}</td>
-                                        <td className="px-4 py-2">{p.estimate_hours}</td>
-                                        <td className="px-4 py-2">
-                                            <NumberInput id={`processing_setup_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.setup_hours} />
+                                        <td>
+                                            <b>{p.process_definition?.name}</b>
                                         </td>
-                                        <td className="px-4 py-2">
-                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours} />
+                                        <td>{p.name}</td>
+                                        <td>{p.estimate_hours}</td>
+                                        <td>
+                                            <NumberInput id={`processing_setup_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.setup_hours ?? undefined} />
                                         </td>
-                                        <td className="px-4 py-2">{p.expected_quantity ?? '-'}</td>
-                                        <td className="px-4 py-2">
-                                            <NumberInput id={`processing_actual_quantity_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.actual_quantity} />
+                                        <td>
+                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours ?? undefined} />
                                         </td>
-                                        <td className="px-4 py-2">
-                                            <div className="ml-4 flex self-center">
+                                        <td>{p.expected_quantity ?? '-'}</td>
+                                        <td>
+                                            <NumberInput id={`processing_actual_quantity_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.actual_quantity ?? undefined} />
+                                        </td>
+                                        <td>
+                                            <Group spacing="xs">
                                                 <ActionIcon color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
                                                     <CheckIcon />
                                                 </ActionIcon>
 
-                                                <ActionIcon color="primary" size="xl" className="ml-4" onClick={() => setCurrentNotesHolder(p)}>
+                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
                                                     <PencilAltIcon />
                                                 </ActionIcon>
-                                            </div>
+                                            </Group>
                                         </td>
                                     </tr>
                                 ))}

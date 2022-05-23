@@ -16,7 +16,7 @@
         "noEmit": true,
         "jsx": "react-jsx",
         "baseUrl": "./src",
-        "paths": { "@components/*": ["components/*"], "@lib/*": ["lib/*"] }
+        "paths": {"@contexts/*": ["contexts/*"], "@components/*": ["components/*"], "@lib/*": ["lib/*"] }
     },
     "include": ["src"],
     "references": [{ "path": "./tsconfig.node.json" }]

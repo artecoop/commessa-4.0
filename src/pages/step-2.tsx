@@ -8,7 +8,7 @@ import { apiPatch } from '@lib/api';
 
 import { Contract, FetchResult, ProcessDefinition } from 'types';
 
-import { ActionIcon, Button, NumberInput, Select, TextInput } from '@mantine/core';
+import { ActionIcon, Button, NumberInput, Select, TextInput, Text, Grid } from '@mantine/core';
 
 import { PlusIcon, TrashIcon } from '@heroicons/react/outline';
 
@@ -38,13 +38,18 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
         }
     }, [contract, setValue]);
 
-    const { mutate } = useSWRConfig();
+    const removeProcessing = (i: number) => {
+        if (confirm('Sei sicuro di voler eliminare questa lavorazione?')) {
+            remove(i);
+        }
+    };
 
+    const { mutate } = useSWRConfig();
     const onSubmit = async (input: Contract) => {
         const url = `/items/contracts/${contract?.id}`;
 
         try {
-            await mutate<FetchResult<Contract>>([url, queryFields], apiPatch(url, input));
+            await mutate([url, queryFields], apiPatch(url, input));
 
             success('Lavorazioni salvate con successo');
         } catch (e) {
@@ -52,85 +57,85 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
         }
     };
 
-    const removeProcessing = (i: number) => {
-        if (confirm('Sei sicuro di voler eliminare questa lavorazione?')) {
-            remove(i);
-        }
-    };
-
     return (
         <>
-            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+            <Text size="sm" weight={500}>
+                * Campi obbligatori
+            </Text>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
+            <form noValidate onSubmit={handleSubmit(onSubmit)}>
                 {fields.map((v, i) => (
                     <Fragment key={v.id}>
                         {(!v.process_definition || v.process_definition.pre) && (
-                            <div className="mb-4 flex">
-                                <Controller
-                                    name={`processings.${i}.process_definition`}
-                                    control={control}
-                                    rules={{ required: 'La lavorazione è obbligatoria' }}
-                                    render={({ field, fieldState }) => (
-                                        <Select
-                                            label="Lavorazione"
-                                            size="xl"
-                                            variant="filled"
-                                            required
-                                            value={field.value?.id?.toString()}
-                                            onChange={field.onChange}
-                                            error={fieldState.error?.message}
-                                            data={processes?.data.map(p => ({ value: (p.id as number).toString(), label: p.name })) ?? []}
-                                        />
-                                    )}
-                                />
+                            <Grid justify="center" align="center" mt="lg">
+                                <Grid.Col span={2}>
+                                    <Controller
+                                        name={`processings.${i}.process_definition`}
+                                        control={control}
+                                        rules={{ required: 'La lavorazione è obbligatoria' }}
+                                        render={({ field, fieldState }) => (
+                                            <Select
+                                                label="Lavorazione"
+                                                size="xl"
+                                                variant="filled"
+                                                required
+                                                value={field.value?.id?.toString()}
+                                                onChange={field.onChange}
+                                                error={fieldState.error?.message}
+                                                data={processes?.data.map(p => ({ value: (p.id as number).toString(), label: p.name })) ?? []}
+                                            />
+                                        )}
+                                    />
+                                </Grid.Col>
 
-                                <TextInput
-                                    label="Nome lavorazione"
-                                    size="xl"
-                                    variant="filled"
-                                    className="ml-4 flex-grow"
-                                    required
-                                    {...register(`processings.${i}.name` as const, { required: 'Il nome lavorazione è obbligatorio' })}
-                                    error={errors.processings?.[i]?.name?.message}
-                                />
+                                <Grid.Col span={7}>
+                                    <TextInput
+                                        label="Nome lavorazione"
+                                        size="xl"
+                                        variant="filled"
+                                        required
+                                        {...register(`processings.${i}.name` as const, { required: 'Il nome lavorazione è obbligatorio' })}
+                                        error={errors.processings?.[i]?.name?.message}
+                                    />
+                                </Grid.Col>
 
-                                <Controller
-                                    name={`processings.${i}.estimate_hours`}
-                                    control={control}
-                                    rules={{ required: 'Le ore preventivate sono obbligatorie' }}
-                                    render={({ field, fieldState }) => (
-                                        <NumberInput
-                                            label="Ore preventivate"
-                                            size="xl"
-                                            variant="filled"
-                                            className="ml-4"
-                                            required
-                                            min={0}
-                                            precision={1}
-                                            step={0.5}
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            error={fieldState.error?.message}
-                                        />
-                                    )}
-                                />
+                                <Grid.Col span={2}>
+                                    <Controller
+                                        name={`processings.${i}.estimate_hours`}
+                                        control={control}
+                                        rules={{ required: 'Le ore preventivate sono obbligatorie' }}
+                                        render={({ field, fieldState }) => (
+                                            <NumberInput
+                                                label="Ore preventivate"
+                                                size="xl"
+                                                variant="filled"
+                                                required
+                                                min={0}
+                                                precision={1}
+                                                step={0.5}
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                error={fieldState.error?.message}
+                                            />
+                                        )}
+                                    />
+                                </Grid.Col>
 
-                                <div className="ml-8 flex items-end pb-2">
+                                <Grid.Col span={1}>
                                     <ActionIcon size="xl" color="red" onClick={() => removeProcessing(i)}>
                                         <TrashIcon />
                                     </ActionIcon>
-                                </div>
-                            </div>
+                                </Grid.Col>
+                            </Grid>
                         )}
                     </Fragment>
                 ))}
 
-                <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" variant="outline" uppercase onClick={() => append({})} className="mt-8">
+                <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" variant="outline" uppercase onClick={() => append({})} mt="lg">
                     Aggiungi lavorazione
                 </Button>
 
-                <Button type="submit" size="xl" uppercase className="mt-4 w-full">
+                <Button type="submit" size="xl" uppercase fullWidth mt="md">
                     Salva
                 </Button>
             </form>

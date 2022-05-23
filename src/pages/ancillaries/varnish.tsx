@@ -8,7 +8,7 @@ import { FetchResult, Varnish } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Button, Switch, Table, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, Grid, Switch, Table, TextInput, Title, Text } from '@mantine/core';
 
 import { TrashIcon } from '@heroicons/react/outline';
 
@@ -53,25 +53,32 @@ const VarnishView: React.FC = () => {
             <Title order={1} mb="lg">
                 Verniciatura
             </Title>
-            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+            <Text size="sm" weight={500}>
+                * Campi obbligatori
+            </Text>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex">
-                    <TextInput label="Nome" size="xl" variant="filled" className="flex-grow" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+            <form noValidate onSubmit={handleSubmit(onSubmit)}>
+                <Grid justify="center" align="center" mt="lg">
+                    <Grid.Col span={10}>
+                        <TextInput label="Nome" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+                    </Grid.Col>
 
-                    <div className="ml-4 flex items-center">
+                    <Grid.Col span={2}>
                         <Switch label="Aggiunge lastra?" size="xl" {...register('add_plate')} defaultChecked={false} />
-                    </div>
-                </div>
+                    </Grid.Col>
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase className="flex-grow">
-                        Salva
-                    </Button>
-                    <Button size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset()}>
-                        Reset
-                    </Button>
-                </div>
+                    <Grid.Col span={11}>
+                        <Button type="submit" size="xl" uppercase fullWidth>
+                            Salva
+                        </Button>
+                    </Grid.Col>
+
+                    <Grid.Col span={1}>
+                        <Button size="xl" uppercase color="red" fullWidth onClick={() => reset()}>
+                            Reset
+                        </Button>
+                    </Grid.Col>
+                </Grid>
             </form>
 
             {processings && processings.data.length > 0 && (
@@ -83,16 +90,16 @@ const VarnishView: React.FC = () => {
                     <Table striped fontSize="lg">
                         <thead>
                             <tr>
-                                <th className="w-40 px-4 py-2">Aggiunge lastra?</th>
-                                <th className="px-4 py-2">Nome</th>
-                                <th className="w-16" />
+                                <th style={{ width: '200px' }}>Aggiunge lastra?</th>
+                                <th>Nome</th>
+                                <th className="action-1" />
                             </tr>
                         </thead>
                         <tbody>
                             {processings?.data.map(p => (
                                 <tr key={p.id}>
-                                    <td className="px-4 py-2">{p.add_plate ? 'SI' : 'NO'}</td>
-                                    <td className="px-4 py-2">{p.name}</td>
+                                    <td>{p.add_plate ? 'SI' : 'NO'}</td>
+                                    <td>{p.name}</td>
                                     <td>
                                         <ActionIcon color="red" size="lg" onClick={() => removeProcessing(p.id as number)}>
                                             <TrashIcon />

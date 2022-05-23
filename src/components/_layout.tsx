@@ -1,7 +1,9 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton, Divider } from '@mantine/core';
+import { useAuth } from '@contexts/auth';
+
+import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton, Divider, Avatar, Box } from '@mantine/core';
 
 import { BriefcaseIcon, ColorSwatchIcon, CubeTransparentIcon, PaperAirplaneIcon, RefreshIcon } from '@heroicons/react/outline';
 
@@ -10,6 +12,7 @@ type LayoutProps = {
 };
 
 export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWithChildren<LayoutProps>) => {
+    const user = useAuth();
     const navigate = useNavigate();
 
     const [opened, setOpened] = useState(false);
@@ -48,49 +51,76 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
             }
             navbar={
                 <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 200, lg: 300 }}>
-                    {menu.map(m => (
-                        <UnstyledButton
-                            key={m.label}
+                    <Navbar.Section grow>
+                        {menu.map(m => (
+                            <UnstyledButton
+                                key={m.label}
+                                sx={theme => ({
+                                    display: 'block',
+                                    width: '100%',
+                                    padding: theme.spacing.xs,
+                                    borderRadius: theme.radius.sm
+                                })}
+                                onClick={() => navigate(m.link)}
+                            >
+                                <Group>
+                                    <ThemeIcon color={m.color} variant="gradient">
+                                        {m.icon}
+                                    </ThemeIcon>
+
+                                    <Text size="sm">{m.label}</Text>
+                                </Group>
+                            </UnstyledButton>
+                        ))}
+
+                        <Divider label="Definizioni" labelPosition="center" />
+
+                        {ancillaries.map(m => (
+                            <UnstyledButton
+                                key={m.label}
+                                sx={theme => ({
+                                    display: 'block',
+                                    width: '100%',
+                                    padding: theme.spacing.xs,
+                                    borderRadius: theme.radius.sm
+                                })}
+                                onClick={() => navigate(m.link)}
+                            >
+                                <Group>
+                                    <ThemeIcon color={m.color} variant="filled">
+                                        {m.icon}
+                                    </ThemeIcon>
+
+                                    <Text size="sm">{m.label}</Text>
+                                </Group>
+                            </UnstyledButton>
+                        ))}
+                    </Navbar.Section>
+
+                    <Navbar.Section>
+                        <Box
                             sx={theme => ({
-                                display: 'block',
-                                width: '100%',
-                                padding: theme.spacing.xs,
-                                borderRadius: theme.radius.sm
+                                paddingTop: theme.spacing.sm,
+                                borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`
                             })}
-                            onClick={() => navigate(m.link)}
                         >
-                            <Group>
-                                <ThemeIcon color={m.color} variant="gradient">
-                                    {m.icon}
-                                </ThemeIcon>
-
-                                <Text size="sm">{m.label}</Text>
+                            <Group
+                                sx={theme => ({
+                                    padding: theme.spacing.xs
+                                })}
+                            >
+                                <Avatar src="/assets/logo.png" radius="xl" />
+                                <Box sx={{ flex: 1 }}>
+                                    <Text size="sm" weight={500}>
+                                        {user.profile?.first_name} {user.profile?.last_name}
+                                    </Text>
+                                    <Text color="dimmed" size="xs">
+                                        {user.profile?.email}
+                                    </Text>
+                                </Box>
                             </Group>
-                        </UnstyledButton>
-                    ))}
-
-                    <Divider label="Definizioni" labelPosition="center" />
-
-                    {ancillaries.map(m => (
-                        <UnstyledButton
-                            key={m.label}
-                            sx={theme => ({
-                                display: 'block',
-                                width: '100%',
-                                padding: theme.spacing.xs,
-                                borderRadius: theme.radius.sm
-                            })}
-                            onClick={() => navigate(m.link)}
-                        >
-                            <Group>
-                                <ThemeIcon color={m.color} variant="filled">
-                                    {m.icon}
-                                </ThemeIcon>
-
-                                <Text size="sm">{m.label}</Text>
-                            </Group>
-                        </UnstyledButton>
-                    ))}
+                        </Box>
+                    </Navbar.Section>
                 </Navbar>
             }
             footer={

@@ -16,7 +16,7 @@ const Print: React.FC = () => {
     const { data: contract } = useSWR<FetchResult<Contract>>(key);
 
     return (
-        <div>
+        <div style={{ width: '32cm', height: '45cm' }}>
             <Title order={1} mt="xl">
                 Commessa n° {contract?.data.number} del {dayjs(contract?.data.date).format('DD/MM/YYYY')}
             </Title>
@@ -61,10 +61,10 @@ const Print: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Nome</th>
-                                <th className="w-48 px-4 py-2">Ore preventivate</th>
-                                <th className="w-48 px-4 py-2">Ore lavorate</th>
+                                <th>Tipo</th>
+                                <th>Nome</th>
+                                <th>Ore preventivate</th>
+                                <th>Ore lavorate</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,10 +72,12 @@ const Print: React.FC = () => {
                                 ?.filter(p => p.process_definition?.pre)
                                 ?.map(p => (
                                     <tr key={p.id}>
-                                        <td className="px-4 py-2 font-bold">{p.process_definition?.name}</td>
-                                        <td className="px-4 py-2">{p.name}</td>
-                                        <td className="px-4 py-2">{p.estimate_hours}</td>
-                                        <td className="px-4 py-2">{p.working_hours}</td>
+                                        <td>
+                                            <b>{p.process_definition?.name}</b>
+                                        </td>
+                                        <td>{p.name}</td>
+                                        <td>{p.estimate_hours}</td>
+                                        <td>{p.working_hours}</td>
                                     </tr>
                                 ))}
                         </tbody>
@@ -97,14 +99,16 @@ const Print: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Colori</th>
-                                <th className="px-4 py-2">Pantoni</th>
-                                <th className="px-4 py-2">Verniciatura</th>
-                                <th className="px-4 py-2">Resa</th>
-                                <th className="px-4 py-2">Fogli</th>
-                                <th className="px-4 py-2">Carta</th>
-                                <th className="w-48 px-4 py-2">Ore lavorate</th>
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                                <th>Colori</th>
+                                <th>Pantoni</th>
+                                <th>Verniciatura</th>
+                                <th>Resa</th>
+                                <th>Fogli</th>
+                                <th>Carta</th>
+                                <th>Ore lavorate</th>
+                                <th>Fogli usati</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -112,16 +116,22 @@ const Print: React.FC = () => {
                                 .filter(p => p.run_type?.kind === 'offset')
                                 .map(op => (
                                     <tr key={op.id}>
-                                        <td className="px-4 py-2 font-bold">{op.run_type?.name}</td>
-                                        <td className="px-4 py-2">{op.colors.map(c => c.toUpperCase())}</td>
-                                        <td className="px-4 py-2">{op.pantones?.map(pa => pa.name).join(', ')}</td>
-                                        <td className="px-4 py-2">{op.varnish?.name}</td>
-                                        <td className="px-4 py-2">{op.yield}</td>
-                                        <td className="px-4 py-2">{op.run_type?.name !== 'Volta' ? Math.ceil(contract?.data.quantity / op.yield) : '-'}</td>
-                                        <td className="px-4 py-2">
+                                        <td>
+                                            <b>{op.run_type?.name}</b>
+                                        </td>
+                                        <td>
+                                            <b>{op.description}</b>
+                                        </td>
+                                        <td>{op.colors?.map(c => c.toUpperCase())}</td>
+                                        <td>{op.pantones?.map(pa => pa.name).join(', ')}</td>
+                                        <td>{op.varnish?.name}</td>
+                                        <td>{op.yield}</td>
+                                        <td>{op.run_type?.name !== 'Volta' ? Math.ceil(contract?.data.quantity / op.yield) : '-'}</td>
+                                        <td>
                                             {op.paper.name} {op.paper.weight}gr {op.paper.format} {op.paper.orientation}
                                         </td>
-                                        <td className="px-4 py-2">{op.working_hours}</td>
+                                        <td>{op.working_hours}</td>
+                                        <td>{op.consumed_sheets}</td>
                                     </tr>
                                 ))}
                         </tbody>
@@ -129,8 +139,14 @@ const Print: React.FC = () => {
 
                     <Title order={3} mt="xl">
                         Lastre:&nbsp;
-                        {contract?.data.press.filter(p => p.run_type?.kind === 'offset').flatMap(op => op.colors).length +
-                            contract?.data.press.filter(p => p.run_type?.kind === 'offset').flatMap(op => op.pantones).length +
+                        {contract?.data.press
+                            .filter(p => p.run_type?.kind === 'offset')
+                            .flatMap(op => op.colors)
+                            .filter(op => op && op.length > 0).length +
+                            contract?.data.press
+                                .filter(p => p.run_type?.kind === 'offset')
+                                .flatMap(op => op.pantones)
+                                .filter(op => op !== null).length +
                             contract?.data.press
                                 .filter(p => p.run_type?.kind === 'offset')
                                 .flatMap(op => op.varnish)
@@ -138,7 +154,7 @@ const Print: React.FC = () => {
                         &nbsp;- Fogli:&nbsp;
                         {contract?.data.press
                             .filter(p => p.run_type?.kind === 'offset')
-                            .filter(op => op.run_type?.name !== 'Volta')
+                            .filter(op => op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0)
                             .reduce((acc, curr) => acc + Math.ceil(contract?.data.quantity / curr.yield), 0)}
                     </Title>
                 </>
@@ -158,12 +174,14 @@ const Print: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Descrizione</th>
-                                <th className="px-4 py-2">Colori</th>
-                                <th className="px-4 py-2">Resa</th>
-                                <th className="px-4 py-2">Fogli</th>
-                                <th className="px-4 py-2">Carta</th>
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                                <th>Colori</th>
+                                <th>Resa</th>
+                                <th>Fogli</th>
+                                <th>Carta</th>
+                                <th>Ore lavorate</th>
+                                <th>Fogli usati</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -171,16 +189,27 @@ const Print: React.FC = () => {
                                 .filter(p => p.run_type?.kind === 'digital')
                                 .map(dp => (
                                     <tr key={dp.id}>
-                                        <td className="px-4 py-2 font-bold">{dp.run_type?.name}</td>
-                                        <td className="px-4 py-2">{dp.description}</td>
-                                        <td className="px-4 py-2">{dp.colors.length > 1 ? 'Colori' : 'B/N'}</td>
-                                        <td className="px-4 py-2">{dp.yield}</td>
-                                        <td className="px-4 py-2">{dp.sheets}</td>
-                                        <td className="px-4 py-2">{dp.paper.name}</td>
+                                        <td>
+                                            <b>{dp.run_type?.name}</b>
+                                        </td>
+                                        <td>{dp.description}</td>
+                                        <td>{dp.colors && dp.colors.length > 1 ? 'Colori' : 'B/N'}</td>
+                                        <td>{dp.yield}</td>
+                                        <td>{dp.sheets}</td>
+                                        <td>
+                                            {dp.paper.name} {dp.paper.weight}gr {dp.paper.format} {dp.paper.orientation}
+                                        </td>
+                                        <td>{dp.working_hours}</td>
+                                        <td>{dp.consumed_sheets}</td>
                                     </tr>
                                 ))}
                         </tbody>
                     </Table>
+
+                    <Title order={3} mt="xl">
+                        Fogli:&nbsp;
+                        {contract?.data.press.filter(p => p.run_type?.kind === 'digital').reduce((acc, curr) => acc + (curr.sheets || 0), 0)}
+                    </Title>
                 </>
             )}
 
@@ -198,13 +227,13 @@ const Print: React.FC = () => {
                     <Table striped fontSize="lg" mt="xl">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Tipo</th>
-                                <th className="px-4 py-2">Descrizione</th>
-                                <th className="w-48 px-4 py-2">Ore preventivate</th>
-                                <th className="w-48 px-4 py-2">Ore setup</th>
-                                <th className="w-48 px-4 py-2">Ore lavorazione</th>
-                                <th className="w-48 px-4 py-2">Quantità</th>
-                                <th className="w-48 px-4 py-2">Quantità effettiva</th>
+                                <th>Tipo</th>
+                                <th>Descrizione</th>
+                                <th>Ore preventivate</th>
+                                <th>Ore setup</th>
+                                <th>Ore lavorazione</th>
+                                <th>Quantità</th>
+                                <th>Quantità effettiva</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -212,13 +241,15 @@ const Print: React.FC = () => {
                                 .filter(p => !p.process_definition?.pre)
                                 .map(p => (
                                     <tr key={p.id}>
-                                        <td className="px-4 py-2 font-bold">{p.process_definition?.name}</td>
-                                        <td className="px-4 py-2">{p.name}</td>
-                                        <td className="px-4 py-2">{p.estimate_hours}</td>
-                                        <td className="px-4 py-2">{p.setup_hours}</td>
-                                        <td className="px-4 py-2">{p.working_hours}</td>
-                                        <td className="px-4 py-2">{p.expected_quantity ?? '-'}</td>
-                                        <td className="px-4 py-2">{p.actual_quantity}</td>
+                                        <td>
+                                            <b>{p.process_definition?.name}</b>
+                                        </td>
+                                        <td>{p.name}</td>
+                                        <td>{p.estimate_hours}</td>
+                                        <td>{p.setup_hours}</td>
+                                        <td>{p.working_hours}</td>
+                                        <td>{p.expected_quantity ?? '-'}</td>
+                                        <td>{p.actual_quantity}</td>
                                     </tr>
                                 ))}
                         </tbody>

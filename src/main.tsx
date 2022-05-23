@@ -11,7 +11,7 @@ dayjs.locale('it');
 
 import { apiGet } from '@lib/api';
 
-import { AuthProvider } from 'contexts/auth';
+import { AuthProvider } from '@contexts/auth';
 
 import App from './App';
 

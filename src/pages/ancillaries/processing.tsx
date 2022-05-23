@@ -8,7 +8,7 @@ import { FetchResult, ProcessDefinition } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Button, Switch, Table, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Button, Grid, Switch, Table, TextInput, Title, Text } from '@mantine/core';
 
 import { TrashIcon } from '@heroicons/react/outline';
 
@@ -53,28 +53,36 @@ const Processings: React.FC = () => {
             <Title order={1} mb="lg">
                 Lavorazioni
             </Title>
-            <span className="text-xs font-semibold italic">* Campi obbligatori</span>
+            <Text size="sm" weight={500}>
+                * Campi obbligatori
+            </Text>
 
-            <form noValidate className="mt-8" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex">
-                    <TextInput label="Nome" size="xl" variant="filled" className="flex-grow" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+            <form noValidate onSubmit={handleSubmit(onSubmit)}>
+                <Grid justify="center" align="center" mt="lg">
+                    <Grid.Col span={9}>
+                        <TextInput label="Nome" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+                    </Grid.Col>
 
-                    <div className="ml-4 flex items-center">
+                    <Grid.Col span={1}>
                         <Switch label="Pre" size="xl" {...register('pre')} defaultChecked={false} />
-                    </div>
-                    <div className="ml-4 flex items-center">
-                        <Switch label="Deriva da avviamento" size="xl" {...register('special')} defaultChecked={false} />
-                    </div>
-                </div>
+                    </Grid.Col>
 
-                <div className="mt-4 flex">
-                    <Button type="submit" size="xl" uppercase className="flex-grow">
-                        Salva
-                    </Button>
-                    <Button size="xl" uppercase color="red" className="ml-4 w-36" onClick={() => reset()}>
-                        Reset
-                    </Button>
-                </div>
+                    <Grid.Col span={2}>
+                        <Switch label="Deriva da avviamento" size="xl" {...register('special')} defaultChecked={false} />
+                    </Grid.Col>
+
+                    <Grid.Col span={11}>
+                        <Button type="submit" size="xl" uppercase fullWidth>
+                            Salva
+                        </Button>
+                    </Grid.Col>
+
+                    <Grid.Col span={1}>
+                        <Button size="xl" uppercase color="red" fullWidth onClick={() => reset()}>
+                            Reset
+                        </Button>
+                    </Grid.Col>
+                </Grid>
             </form>
 
             {processings && processings.data.length > 0 && (
@@ -86,18 +94,18 @@ const Processings: React.FC = () => {
                     <Table striped fontSize="lg">
                         <thead>
                             <tr>
-                                <th className="px-4 py-2">Nome</th>
-                                <th className="px-4 py-2">Pre</th>
-                                <th className="px-4 py-2">Deriva da avviamento</th>
-                                <th className="w-16" />
+                                <th>Nome</th>
+                                <th>Pre</th>
+                                <th>Deriva da avviamento</th>
+                                <th className="action-1" />
                             </tr>
                         </thead>
                         <tbody>
                             {processings?.data.map(p => (
                                 <tr key={p.id}>
-                                    <td className="px-4 py-2">{p.name}</td>
-                                    <td className="px-4 py-2">{p.pre ? 'SI' : 'NO'}</td>
-                                    <td className="px-4 py-2">{p.special ? 'SI' : 'NO'}</td>
+                                    <td>{p.name}</td>
+                                    <td>{p.pre ? 'SI' : 'NO'}</td>
+                                    <td>{p.special ? 'SI' : 'NO'}</td>
                                     <td>
                                         <ActionIcon color="red" size="lg" onClick={() => removeProcessing(p.id as number)}>
                                             <TrashIcon />

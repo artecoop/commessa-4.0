@@ -60,11 +60,11 @@ export type Processing = {
     id?: number;
     process_definition: ProcessDefinition;
     name: string;
-    setup_hours?: number;
+    setup_hours?: number | null;
     estimate_hours: number;
-    working_hours?: number;
+    working_hours?: number | null;
     expected_quantity?: number;
-    actual_quantity?: number;
+    actual_quantity?: number | null;
     notes?: ProcessingNote[];
 };
 
@@ -77,14 +77,14 @@ export type Press = {
     id?: number;
     run_type: RunType;
     description?: string;
-    colors: string[];
+    colors?: string[];
     pantones?: Pantone[];
     varnish?: Varnish;
     yield: number;
-    sheets?: number;
-    consumed_sheets?: number;
     paper: Paper;
-    working_hours?: number;
+    sheets?: number;
+    consumed_sheets?: number | null;
+    working_hours?: number | null;
     notes?: ProcessingNote[];
 };
 

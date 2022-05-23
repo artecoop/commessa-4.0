@@ -27,31 +27,29 @@ Axios.interceptors.response.use(
         return Promise.resolve(response);
     },
     async error => {
-        /* const originalRequest = error.config;
+        const err = error.response.data as DirectusErrorBody;
 
-  const err = error.response.data as DirectusErrorBody;
+        if (!error.config.url.endsWith('/auth/refresh') && error.response?.status === 403 && err.errors.map(e => e.extensions.code).includes('INVALID_TOKEN')) {
+            const storedTokens = sessionStorage.getItem('token');
+            if (storedTokens) {
+                console.log('refreshing token');
+                try {
+                    const result = await axios.create({ baseURL: 'https://36mmwjow.directus.app' }).post('/auth/refresh', { refresh_token: JSON.parse(storedTokens)?.refresh_token });
+                    if (result.data) {
+                        sessionStorage.setItem('token', JSON.stringify(result.data));
+                        return Axios.request(error.config);
+                    }
+                } catch (e) {
+                    return Promise.reject();
+                }
+            }
+        }
 
-  if (!originalRequest.url.endsWith('/auth/refresh') && error.response?.status === 403 && err.errors.map(p => p.extensions.code).includes('INVALID_TOKEN')) {
-   const storedTokens = sessionStorage.getItem('token');
-   if (storedTokens) {
-    try {
-     const result = await axios.create({ baseURL: 'https://36mmwjow.directus.app' }).post('/auth/refresh', { refresh_token: JSON.parse(storedTokens)?.refresh_token });
-     if (result.data) {
-      sessionStorage.setItem('token', JSON.stringify(result.data));
-      return Axios.request(originalRequest);
-     }
-    } catch (e) {
-     return Promise.reject();
-    }
-   }
-  }
+        if (err.errors) {
+            return Promise.reject(err.errors.map(e => e.message).join(', '));
+        }
 
-  if (error.response?.status === 500) {
-   return Promise.reject({ status: error.response.status, data: error.response.data });
-  } */
-
-        console.log(error);
-        return Promise.reject();
+        return Promise.reject(error);
     }
 );
 
