@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useSWRConfig } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { useNavigate } from 'react-router-dom';
 
 import { apiPatch, apiPost } from '@lib/api';
@@ -20,6 +20,8 @@ type Props = {
 const Step1: React.FC<Props> = ({ contract }: Props) => {
     const navigate = useNavigate();
 
+    const { data: lastNumber } = useSWR<FetchResult<Contract[]>>(!contract ? ['/items/contracts', { fields: ['number'], sort: ['-id'], limit: 1 }] : null);
+
     const {
         handleSubmit,
         register,
@@ -28,6 +30,12 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
         setValue,
         formState: { errors }
     } = useForm<Contract>();
+
+    useEffect(() => {
+        if (lastNumber?.data && lastNumber.data.length === 1) {
+            setValue('number', (lastNumber.data[0].number || 0) + 1, { shouldDirty: true });
+        }
+    }, [lastNumber, setValue]);
 
     useEffect(() => {
         if (contract) {
@@ -84,7 +92,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={fieldState.error?.message}
-                                    disabled={contract !== undefined}
+                                    disabled
                                 />
                             )}
                         />

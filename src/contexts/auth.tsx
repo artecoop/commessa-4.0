@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
 
             const sessionProfile = sessionStorage.getItem(PROFILE_KEY);
             if (sessionProfile) {
-                console.log('setting profile');
                 setProfile(JSON.parse(sessionProfile));
             }
         }
