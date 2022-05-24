@@ -68,7 +68,7 @@ const Step6: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 {fields.map((v, i) => (
                     <Fragment key={v.id}>
                         {(!v.process_definition || (!v.process_definition.pre && !v.process_definition.special)) && (
-                            <Grid justify="center" align="center" mt="lg">
+                            <Grid mt="lg">
                                 <Grid.Col span={2}>
                                     <Controller
                                         name={`processings.${i}.process_definition`}

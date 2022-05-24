@@ -61,7 +61,7 @@ const Papers: React.FC = () => {
             </Text>
 
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Grid justify="center" align="center" mt="lg">
+                <Grid mt="lg">
                     <Grid.Col span={6}>
                         <TextInput label="Carta" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
                     </Grid.Col>

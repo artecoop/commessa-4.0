@@ -40,13 +40,13 @@ Axios.interceptors.response.use(
                         return Axios.request(error.config);
                     }
                 } catch (e) {
-                    return Promise.reject();
+                    return Promise.reject(e);
                 }
             }
         }
 
         if (err.errors) {
-            return Promise.reject(err.errors.map(e => e.message).join(', '));
+            return Promise.reject(new Error(err.errors.map(e => e.message).join(', ')));
         }
 
         return Promise.reject(error);

@@ -58,16 +58,16 @@ const Processings: React.FC = () => {
             </Text>
 
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Grid justify="center" align="center" mt="lg">
+                <Grid mt="lg" align="end" grow>
                     <Grid.Col span={9}>
                         <TextInput label="Nome" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
                     </Grid.Col>
 
-                    <Grid.Col span={1}>
+                    <Grid.Col span={1} pb="lg">
                         <Switch label="Pre" size="xl" {...register('pre')} defaultChecked={false} />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={2} pb="lg">
                         <Switch label="Deriva da avviamento" size="xl" {...register('special')} defaultChecked={false} />
                     </Grid.Col>
 

@@ -90,7 +90,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
             </Text>
 
             <form noValidate onSubmit={realFormHandleSubmit(onSubmit)}>
-                <Grid justify="center" align="center" mt="lg">
+                <Grid mt="lg" align="end" grow>
                     <Grid.Col span={2}>
                         <Controller
                             name="run_type"
@@ -122,7 +122,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={1}>
+                    <Grid.Col span={1} pb="lg">
                         <Switch label="Colori" size="xl" {...realFormRegister('color')} defaultChecked={true} />
                     </Grid.Col>
 

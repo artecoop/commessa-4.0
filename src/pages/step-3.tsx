@@ -99,7 +99,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
             </Text>
 
             <form noValidate onSubmit={realFormHandleSubmit(onSubmit)}>
-                <Grid justify="center" align="center" mt="lg">
+                <Grid mt="lg">
                     <Grid.Col span={1}>
                         <Controller
                             name="run_type"

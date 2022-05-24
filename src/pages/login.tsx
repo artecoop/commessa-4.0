@@ -46,22 +46,13 @@ const Login: React.FC = () => {
                 </Group>
 
                 <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                    <TextInput
-                        label="Username"
-                        size="xl"
-                        required
-                        variant="filled"
-                        defaultValue="valerio.fornito@artecoop.it"
-                        {...register('username', { required: 'Lo username è obbligatorio' })}
-                        error={errors.username?.message}
-                    />
+                    <TextInput label="Username" size="xl" required variant="filled" {...register('username', { required: 'Lo username è obbligatorio' })} error={errors.username?.message} />
 
                     <PasswordInput
                         label="Password"
                         size="xl"
                         required
                         variant="filled"
-                        defaultValue="u2xE[2v66Rm~icZ9X5ILFEi!"
                         {...register('password', { required: 'La password è obbligatoria' })}
                         error={errors.password?.message}
                         mt="md"

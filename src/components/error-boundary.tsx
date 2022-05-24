@@ -1,5 +1,7 @@
 import { Component, ComponentProps, ReactNode } from 'react';
 
+import { Box, Title } from '@mantine/core';
+
 import { ExclamationCircleIcon } from '@heroicons/react/outline';
 
 class ErrorBoundary extends Component<ComponentProps<'div'>, { error?: Error }> {
@@ -12,19 +14,24 @@ class ErrorBoundary extends Component<ComponentProps<'div'>, { error?: Error }> 
     }
 
     render(): ReactNode {
+        console.log(this.state.error);
         if (!this.state.error) {
             return this.props.children;
         }
 
         return (
-            <div className="flex flex-col items-center justify-center" style={{ height: '100vh' }}>
-                <div className="flex items-center" style={{ color: 'red' }}>
+            <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <Box sx={{ color: 'red', display: 'flex', alignItems: 'center' }}>
                     <ExclamationCircleIcon style={{ width: '3em', height: '3em', color: 'red' }} />
-                    <h3 className="ml-1">Si è verificato un errore nel caricare i dati</h3>
-                </div>
+                    <Title order={3} ml="xs">
+                        Si è verificato un errore nel caricare i dati
+                    </Title>
+                </Box>
 
-                <h5 className="mt-4">{this.state.error?.message}</h5>
-            </div>
+                <Title order={5} mt="lg">
+                    {this.state.error?.message}
+                </Title>
+            </Box>
         );
     }
 }

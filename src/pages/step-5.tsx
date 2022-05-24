@@ -77,7 +77,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 Genera da avviamenti
             </Title>
 
-            <Grid justify="center" align="end">
+            <Grid align="end">
                 <Grid.Col span={3}>
                     <Select
                         label="Lavorazione"
@@ -111,12 +111,12 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 {fields.map((v, i) => (
                     <Fragment key={v.id}>
                         {v.process_definition?.special && (
-                            <Grid justify="center" align="end" mt="lg">
-                                <Grid.Col span={7}>
+                            <Grid mt="lg" align="end" columns={24} grow>
+                                <Grid.Col span={14}>
                                     <TextInput label="Nome lavorazione" size="xl" variant="filled" disabled {...register(`processings.${i}.name` as const)} />
                                 </Grid.Col>
 
-                                <Grid.Col span={2}>
+                                <Grid.Col span={4}>
                                     <Controller
                                         name={`processings.${i}.estimate_hours`}
                                         control={control}
@@ -138,7 +138,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={2}>
+                                <Grid.Col span={4}>
                                     <Controller
                                         name={`processings.${i}.expected_quantity`}
                                         control={control}
@@ -149,7 +149,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={1}>
+                                <Grid.Col span={1} pb="lg">
                                     <ActionIcon size="xl" color="red" onClick={() => removeProcessing(i)}>
                                         <TrashIcon />
                                     </ActionIcon>

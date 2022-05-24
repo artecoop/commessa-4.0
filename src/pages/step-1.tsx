@@ -106,7 +106,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                     icon={<CalendarIcon className="icon-field-left" />}
                                     value={field.value && new Date(field.value)}
                                     defaultValue={new Date()}
-                                    onChange={v => field.onChange(v)}
+                                    onChange={field.onChange}
                                     error={fieldState.error?.message}
                                     disabled={contract !== undefined}
                                 />

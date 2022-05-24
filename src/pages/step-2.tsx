@@ -67,8 +67,8 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 {fields.map((v, i) => (
                     <Fragment key={v.id}>
                         {(!v.process_definition || v.process_definition.pre) && (
-                            <Grid justify="center" align="center" mt="lg">
-                                <Grid.Col span={2}>
+                            <Grid mt="lg" align="end" columns={24} grow>
+                                <Grid.Col span={6}>
                                     <Controller
                                         name={`processings.${i}.process_definition`}
                                         control={control}
@@ -88,7 +88,7 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={7}>
+                                <Grid.Col span={14}>
                                     <TextInput
                                         label="Nome lavorazione"
                                         size="xl"
@@ -99,7 +99,7 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={2}>
+                                <Grid.Col span={3}>
                                     <Controller
                                         name={`processings.${i}.estimate_hours`}
                                         control={control}
@@ -121,7 +121,7 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={1}>
+                                <Grid.Col span={1} pb="lg">
                                     <ActionIcon size="xl" color="red" onClick={() => removeProcessing(i)}>
                                         <TrashIcon />
                                     </ActionIcon>
