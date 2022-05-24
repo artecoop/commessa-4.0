@@ -64,29 +64,27 @@ const RunTypes: React.FC = () => {
             </Text>
 
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Grid mt="lg">
-                    <Grid.Col span={10}>
-                        <TextInput label="Nome" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+                <Grid columns={24} mt="lg">
+                    <Grid.Col span={20}>
+                        <TextInput label="Nome" size="xl" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                         <Controller
                             name="kind"
                             control={control}
                             rules={{ required: 'Il tipo è obbligatorio' }}
-                            render={({ field, fieldState }) => (
-                                <Select label="Tipo" size="xl" variant="filled" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} data={kind} />
-                            )}
+                            render={({ field, fieldState }) => <Select label="Tipo" size="xl" required value={field.value} onChange={field.onChange} error={fieldState.error?.message} data={kind} />}
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={11}>
+                    <Grid.Col span={21}>
                         <Button type="submit" size="xl" uppercase fullWidth>
                             Salva
                         </Button>
                     </Grid.Col>
 
-                    <Grid.Col span={1}>
+                    <Grid.Col span={3}>
                         <Button size="xl" uppercase color="red" fullWidth onClick={() => reset()}>
                             Reset
                         </Button>

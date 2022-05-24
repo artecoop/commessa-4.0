@@ -82,7 +82,6 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     <Select
                         label="Lavorazione"
                         size="xl"
-                        variant="filled"
                         value={selectedProcess}
                         onChange={setSelectedProcess}
                         data={processes?.data.map(p => ({ value: p.id?.toString() || '', label: p.name })) || []}
@@ -93,7 +92,6 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                     <Select
                         label="Avviamento"
                         size="xl"
-                        variant="filled"
                         value={selectedRun}
                         onChange={setSelectedRun}
                         data={contract?.press?.map(p => ({ value: p.id?.toString() || '', label: p.description || p.run_type?.name })) || []}
@@ -113,7 +111,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         {v.process_definition?.special && (
                             <Grid mt="lg" align="end" columns={24} grow>
                                 <Grid.Col span={14}>
-                                    <TextInput label="Nome lavorazione" size="xl" variant="filled" disabled {...register(`processings.${i}.name` as const)} />
+                                    <TextInput label="Nome lavorazione" size="xl" disabled {...register(`processings.${i}.name` as const)} />
                                 </Grid.Col>
 
                                 <Grid.Col span={4}>
@@ -125,7 +123,6 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                             <NumberInput
                                                 label="Ore preventivate"
                                                 size="xl"
-                                                variant="filled"
                                                 required
                                                 min={0}
                                                 precision={1}
@@ -144,7 +141,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                         control={control}
                                         rules={{ required: 'I fogli sono obbligatori' }}
                                         render={({ field, fieldState }) => (
-                                            <NumberInput label="Fogli" size="xl" variant="filled" required min={0} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                                            <NumberInput label="Fogli" size="xl" required min={0} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
                                         )}
                                     />
                                 </Grid.Col>

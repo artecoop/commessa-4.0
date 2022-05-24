@@ -8,7 +8,7 @@ import { FetchResult, ProcessDefinition } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Button, Grid, Switch, Table, TextInput, Title, Text } from '@mantine/core';
+import { ActionIcon, Button, Grid, Switch, Table, TextInput, Title, Text, Stack } from '@mantine/core';
 
 import { TrashIcon } from '@heroicons/react/outline';
 
@@ -58,26 +58,26 @@ const Processings: React.FC = () => {
             </Text>
 
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Grid mt="lg" align="end" grow>
-                    <Grid.Col span={9}>
-                        <TextInput label="Nome" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+                <Grid mt="lg" columns={24} align="end">
+                    <Grid.Col span={19}>
+                        <TextInput label="Nome" size="xl" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
                     </Grid.Col>
 
-                    <Grid.Col span={1} pb="lg">
-                        <Switch label="Pre" size="xl" {...register('pre')} defaultChecked={false} />
+                    <Grid.Col span={5} pb="lg">
+                        <Stack>
+                            <Switch label="Pre" size="xl" {...register('pre')} defaultChecked={false} />
+
+                            <Switch label="Deriva da avviamento" size="xl" {...register('special')} defaultChecked={false} />
+                        </Stack>
                     </Grid.Col>
 
-                    <Grid.Col span={2} pb="lg">
-                        <Switch label="Deriva da avviamento" size="xl" {...register('special')} defaultChecked={false} />
-                    </Grid.Col>
-
-                    <Grid.Col span={11}>
+                    <Grid.Col span={21}>
                         <Button type="submit" size="xl" uppercase fullWidth>
                             Salva
                         </Button>
                     </Grid.Col>
 
-                    <Grid.Col span={1}>
+                    <Grid.Col span={3}>
                         <Button size="xl" uppercase color="red" fullWidth onClick={() => reset()}>
                             Reset
                         </Button>

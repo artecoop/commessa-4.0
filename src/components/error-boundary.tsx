@@ -14,7 +14,6 @@ class ErrorBoundary extends Component<ComponentProps<'div'>, { error?: Error }> 
     }
 
     render(): ReactNode {
-        console.log(this.state.error);
         if (!this.state.error) {
             return this.props.children;
         }

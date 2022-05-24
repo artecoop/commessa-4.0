@@ -32,11 +32,10 @@ Axios.interceptors.response.use(
         if (!error.config.url.endsWith('/auth/refresh') && error.response?.status === 403 && err.errors.map(e => e.extensions.code).includes('INVALID_TOKEN')) {
             const storedTokens = sessionStorage.getItem('token');
             if (storedTokens) {
-                console.log('refreshing token');
                 try {
                     const result = await axios.create({ baseURL: 'https://36mmwjow.directus.app' }).post('/auth/refresh', { refresh_token: JSON.parse(storedTokens)?.refresh_token });
                     if (result.data) {
-                        sessionStorage.setItem('token', JSON.stringify(result.data));
+                        sessionStorage.setItem('token', JSON.stringify(result.data.data));
                         return Axios.request(error.config);
                     }
                 } catch (e) {

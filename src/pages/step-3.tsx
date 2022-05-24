@@ -99,8 +99,8 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
             </Text>
 
             <form noValidate onSubmit={realFormHandleSubmit(onSubmit)}>
-                <Grid mt="lg">
-                    <Grid.Col span={1}>
+                <Grid columns={24} align="end" mt="lg">
+                    <Grid.Col span={4}>
                         <Controller
                             name="run_type"
                             control={realFormControl}
@@ -109,7 +109,6 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <Select
                                     label="Avviamento"
                                     size="xl"
-                                    variant="filled"
                                     required
                                     value={field.value}
                                     onChange={field.onChange}
@@ -120,11 +119,11 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={7}>
-                        <TextInput label="Descrizione" size="xl" variant="filled" {...realFormRegister('description')} />
+                    <Grid.Col span={12}>
+                        <TextInput label="Descrizione" size="xl" {...realFormRegister('description')} />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                         <Controller
                             name="paper"
                             control={realFormControl}
@@ -133,7 +132,6 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <Select
                                     label="Carta"
                                     size="xl"
-                                    variant="filled"
                                     required
                                     value={field.value}
                                     onChange={field.onChange}
@@ -144,18 +142,16 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                         <Controller
                             name="yield"
                             control={realFormControl}
                             rules={{ required: 'La resa è obbligatoria' }}
-                            render={({ field, fieldState }) => (
-                                <NumberInput label="Resa" size="xl" variant="filled" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
-                            )}
+                            render={({ field, fieldState }) => <NumberInput label="Resa" size="xl" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />}
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={3}>
+                    <Grid.Col span={8}>
                         <Controller
                             name="colors"
                             control={realFormControl}
@@ -170,7 +166,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                         <Controller
                             name="varnish"
                             control={realFormControl}
@@ -178,7 +174,6 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <Select
                                     label="Vernice"
                                     size="xl"
-                                    variant="filled"
                                     value={field.value}
                                     onChange={field.onChange}
                                     data={varnishes?.data.map(r => ({ value: (r.id as number).toString(), label: r.name })) ?? []}
@@ -187,7 +182,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={7}>
+                    <Grid.Col span={12}>
                         <Button leftIcon={<PlusIcon className="icon-field-left" />} color="green" variant="outline" uppercase onClick={() => appendPantone({})}>
                             Aggiungi Pantone
                         </Button>
@@ -198,7 +193,6 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     <TextInput
                                         label="Pantone"
                                         size="xl"
-                                        variant="filled"
                                         required
                                         {...realFormRegister(`pantones.${i}.name` as const, { required: 'Il pantone è obbligatorio se aggiunto' })}
                                         error={realFormErrors.pantones?.[i].name?.message}

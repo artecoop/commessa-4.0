@@ -7,10 +7,10 @@ import { FetchResult, LoginResult, Profile } from 'types';
 type ContextProps = {
     isLoading?: boolean;
     isAuthenticated?: boolean;
-
     profile?: Profile;
     login?(email: string, password: string): Promise<void>;
     logout?(): Promise<void>;
+    isInRole?(role: string | string[]): boolean;
 };
 
 export const AuthContext = createContext<Partial<ContextProps>>({});
@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
 
             const sessionProfile = sessionStorage.getItem(PROFILE_KEY);
             if (sessionProfile) {
+                console.log('setting profile');
                 setProfile(JSON.parse(sessionProfile));
             }
         }
@@ -66,6 +67,7 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
 
             sessionStorage.setItem(PROFILE_KEY, JSON.stringify(me.data));
 
+            setProfile(me.data);
             setIsAuthenticated(true);
         } catch (e) {
             throw new Error('Non disponi dei diritti necessari per entrare');
@@ -74,11 +76,23 @@ export const AuthProvider = ({ children }: PropsWithChildren<ContextProps>) => {
         }
     };
 
+    const isInRole = (role: string | string[]) => {
+        if (!profile) {
+            return false;
+        }
+
+        if (Array.isArray(role)) {
+            return role.includes(profile.role);
+        }
+
+        return role === profile.role;
+    };
+
     const logout = async (): Promise<void> => {
         sessionStorage.clear();
         setProfile(undefined);
         setIsAuthenticated(false);
     };
 
-    return <AuthContext.Provider value={{ isLoading, isAuthenticated, profile, login, logout }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ isLoading, isAuthenticated, profile, login, logout, isInRole }}>{children}</AuthContext.Provider>;
 };

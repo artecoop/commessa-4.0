@@ -90,7 +90,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
             </Text>
 
             <form noValidate onSubmit={realFormHandleSubmit(onSubmit)}>
-                <Grid mt="lg" align="end" grow>
+                <Grid mt="lg" align="end">
                     <Grid.Col span={2}>
                         <Controller
                             name="run_type"
@@ -100,7 +100,6 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <Select
                                     label="Avviamento"
                                     size="xl"
-                                    variant="filled"
                                     required
                                     value={field.value}
                                     onChange={field.onChange}
@@ -111,18 +110,17 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={3}>
+                    <Grid.Col span={2}>
                         <TextInput
                             label="Descrizione"
                             size="xl"
-                            variant="filled"
                             required
                             {...realFormRegister('description', { required: 'La descrizione è obbligatoria' })}
                             error={realFormErrors.description?.message}
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={1} pb="lg">
+                    <Grid.Col span={2} pb="lg">
                         <Switch label="Colori" size="xl" {...realFormRegister('color')} defaultChecked={true} />
                     </Grid.Col>
 
@@ -135,7 +133,6 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <Select
                                     label="Carta"
                                     size="xl"
-                                    variant="filled"
                                     required
                                     value={field.value?.toString()}
                                     onChange={field.onChange}
@@ -151,9 +148,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                             name="yield"
                             control={realFormControl}
                             rules={{ required: 'La resa è obbligatoria' }}
-                            render={({ field, fieldState }) => (
-                                <NumberInput label="Resa" size="xl" variant="filled" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
-                            )}
+                            render={({ field, fieldState }) => <NumberInput label="Resa" size="xl" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />}
                         />
                     </Grid.Col>
 
@@ -162,9 +157,7 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                             name="sheets"
                             control={realFormControl}
                             rules={{ required: 'I fogli sono obbligatori' }}
-                            render={({ field, fieldState }) => (
-                                <NumberInput label="Fogli" size="xl" variant="filled" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
-                            )}
+                            render={({ field, fieldState }) => <NumberInput label="Fogli" size="xl" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />}
                         />
                     </Grid.Col>
 

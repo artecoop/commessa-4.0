@@ -52,7 +52,7 @@ export const Notes: React.FC<Props> = (props: Props) => {
             )}
 
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Textarea label="Aggiungi nota" size="xl" variant="filled" required {...register('description', { required: 'La nota è obbligatoria' })} error={errors.description?.message} />
+                <Textarea label="Aggiungi nota" size="xl" required {...register('description', { required: 'La nota è obbligatoria' })} error={errors.description?.message} />
 
                 <Button type="submit" size="xl" uppercase fullWidth mt="lg">
                     Salva

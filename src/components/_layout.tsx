@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@contexts/auth';
 
-import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton, Divider, Avatar, Box } from '@mantine/core';
+import { AppShell, Navbar, Header, Burger, Footer, MediaQuery, Text, Image, Title, Group, ThemeIcon, UnstyledButton, Divider, Avatar, Box, Button } from '@mantine/core';
 
-import { BriefcaseIcon, ColorSwatchIcon, CubeTransparentIcon, PaperAirplaneIcon, RefreshIcon } from '@heroicons/react/outline';
+import { BriefcaseIcon, ColorSwatchIcon, CubeTransparentIcon, LogoutIcon, PaperAirplaneIcon, RefreshIcon } from '@heroicons/react/outline';
 
 type LayoutProps = {
     title?: string;
@@ -43,7 +43,7 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
                         </MediaQuery>
 
                         <Image height={60} radius="md" src="/assets/logo.png" alt="Art&amp;Coop Società Cooperativa" />
-                        <Title order={1} ml="xl">
+                        <Title order={3} ml="xl">
                             Art&amp;Coop Commessa
                         </Title>
                     </div>
@@ -73,28 +73,30 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
                             </UnstyledButton>
                         ))}
 
-                        <Divider label="Definizioni" labelPosition="center" />
+                        {user.isInRole?.(['Administrator', 'Editor']) && (
+                            <>
+                                <Divider label="Definizioni" labelPosition="center" />
 
-                        {ancillaries.map(m => (
-                            <UnstyledButton
-                                key={m.label}
-                                sx={theme => ({
-                                    display: 'block',
-                                    width: '100%',
-                                    padding: theme.spacing.xs,
-                                    borderRadius: theme.radius.sm
-                                })}
-                                onClick={() => navigate(m.link)}
-                            >
-                                <Group>
-                                    <ThemeIcon color={m.color} variant="filled">
-                                        {m.icon}
-                                    </ThemeIcon>
+                                {ancillaries.map(m => (
+                                    <UnstyledButton
+                                        key={m.label}
+                                        sx={theme => ({
+                                            display: 'block',
+                                            width: '100%',
+                                            padding: theme.spacing.xs,
+                                            borderRadius: theme.radius.sm
+                                        })}
+                                        onClick={() => navigate(m.link)}
+                                    >
+                                        <Group>
+                                            <ThemeIcon color={m.color}>{m.icon}</ThemeIcon>
 
-                                    <Text size="sm">{m.label}</Text>
-                                </Group>
-                            </UnstyledButton>
-                        ))}
+                                            <Text size="sm">{m.label}</Text>
+                                        </Group>
+                                    </UnstyledButton>
+                                ))}
+                            </>
+                        )}
                     </Navbar.Section>
 
                     <Navbar.Section>
@@ -117,6 +119,9 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
                                     <Text color="dimmed" size="xs">
                                         {user.profile?.email}
                                     </Text>
+                                    <Button leftIcon={<LogoutIcon className="icon-field-left" />} mt={4} onClick={() => user.logout?.()}>
+                                        ESCI
+                                    </Button>
                                 </Box>
                             </Group>
                         </Box>
@@ -124,8 +129,8 @@ export const Layout: React.FC<PropsWithChildren<LayoutProps>> = (props: PropsWit
                 </Navbar>
             }
             footer={
-                <Footer height={60} p="md">
-                    © {new Date().getFullYear()} Art&amp;Coop Società Cooperativa. - Non condividere queste pagine con nessuno!
+                <Footer height={64} p="sm">
+                    <Text size="sm">© {new Date().getFullYear()} Art&amp;Coop Società Cooperativa. - Non condividere queste pagine con nessuno!</Text>
                 </Footer>
             }
         >

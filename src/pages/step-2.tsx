@@ -77,7 +77,6 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                             <Select
                                                 label="Lavorazione"
                                                 size="xl"
-                                                variant="filled"
                                                 required
                                                 value={field.value?.id?.toString()}
                                                 onChange={field.onChange}
@@ -92,7 +91,6 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     <TextInput
                                         label="Nome lavorazione"
                                         size="xl"
-                                        variant="filled"
                                         required
                                         {...register(`processings.${i}.name` as const, { required: 'Il nome lavorazione è obbligatorio' })}
                                         error={errors.processings?.[i]?.name?.message}
@@ -108,7 +106,6 @@ const Step2: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                             <NumberInput
                                                 label="Ore preventivate"
                                                 size="xl"
-                                                variant="filled"
                                                 required
                                                 min={0}
                                                 precision={1}

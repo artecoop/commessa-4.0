@@ -46,17 +46,9 @@ const Login: React.FC = () => {
                 </Group>
 
                 <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                    <TextInput label="Username" size="xl" required variant="filled" {...register('username', { required: 'Lo username è obbligatorio' })} error={errors.username?.message} />
+                    <TextInput label="Username" size="xl" required {...register('username', { required: 'Lo username è obbligatorio' })} error={errors.username?.message} />
 
-                    <PasswordInput
-                        label="Password"
-                        size="xl"
-                        required
-                        variant="filled"
-                        {...register('password', { required: 'La password è obbligatoria' })}
-                        error={errors.password?.message}
-                        mt="md"
-                    />
+                    <PasswordInput label="Password" size="xl" required {...register('password', { required: 'La password è obbligatoria' })} error={errors.password?.message} mt="md" />
 
                     <Button type="submit" size="xl" uppercase mt="lg" fullWidth>
                         Accedi

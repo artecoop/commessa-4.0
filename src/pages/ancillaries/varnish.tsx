@@ -58,22 +58,22 @@ const VarnishView: React.FC = () => {
             </Text>
 
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Grid mt="lg" align="end" grow>
-                    <Grid.Col span={10}>
-                        <TextInput label="Nome" size="xl" variant="filled" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
+                <Grid mt="lg" columns={24} align="end">
+                    <Grid.Col span={20}>
+                        <TextInput label="Nome" size="xl" required {...register('name', { required: 'Il nome è obbligatorio' })} error={errors.name?.message} />
                     </Grid.Col>
 
-                    <Grid.Col span={1} pb="lg">
+                    <Grid.Col span={4} pb="lg">
                         <Switch label="Aggiunge lastra?" size="xl" {...register('add_plate')} defaultChecked={false} />
                     </Grid.Col>
 
-                    <Grid.Col span={11}>
+                    <Grid.Col span={21}>
                         <Button type="submit" size="xl" uppercase fullWidth>
                             Salva
                         </Button>
                     </Grid.Col>
 
-                    <Grid.Col span={1}>
+                    <Grid.Col span={3}>
                         <Button size="xl" uppercase color="red" fullWidth onClick={() => reset()}>
                             Reset
                         </Button>

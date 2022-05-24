@@ -69,8 +69,8 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
             </Text>
 
             <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Grid justify="center" align="center" mt="lg">
-                    <Grid.Col span={3}>
+                <Grid columns={24} mt="lg">
+                    <Grid.Col span={6}>
                         <Controller
                             name="number"
                             control={control}
@@ -79,7 +79,6 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 <NumberInput
                                     label="Numero"
                                     size="xl"
-                                    variant="filled"
                                     required
                                     min={1}
                                     value={field.value}
@@ -91,7 +90,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                         <Controller
                             name="date"
                             control={control}
@@ -100,7 +99,6 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 <DatePicker
                                     label="Data"
                                     size="xl"
-                                    variant="filled"
                                     required
                                     inputFormat="DD/MM/YYYY"
                                     icon={<CalendarIcon className="icon-field-left" />}
@@ -114,19 +112,19 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={7}>
-                        <TextInput label="Cliente" size="xl" variant="filled" required {...register('customer', { required: 'Il cliente è obbligatorio' })} error={errors.customer?.message} />
+                    <Grid.Col span={14}>
+                        <TextInput label="Cliente" size="xl" required {...register('customer', { required: 'Il cliente è obbligatorio' })} error={errors.customer?.message} />
                     </Grid.Col>
 
                     <Grid.Col>
-                        <TextInput label="Titolo" size="xl" variant="filled" required {...register('title', { required: 'Il titolo è obbligatorio' })} error={errors.title?.message} />
+                        <TextInput label="Titolo" size="xl" required {...register('title', { required: 'Il titolo è obbligatorio' })} error={errors.title?.message} />
                     </Grid.Col>
 
                     <Grid.Col>
-                        <Textarea label="Descrizione" size="xl" variant="filled" {...register('description')} />
+                        <Textarea label="Descrizione" size="xl" {...register('description')} />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                         <Controller
                             name="desired_delivery"
                             control={control}
@@ -134,7 +132,6 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 <DatePicker
                                     label="Data consegna desiderata"
                                     size="xl"
-                                    variant="filled"
                                     inputFormat="DD/MM/YYYY"
                                     icon={<CalendarIcon className="icon-field-left" />}
                                     value={field.value && new Date(field.value)}
@@ -144,11 +141,11 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
-                        <TextInput label="Preventivo" size="xl" variant="filled" {...register('estimate')} />
+                    <Grid.Col span={4}>
+                        <TextInput label="Preventivo" size="xl" {...register('estimate')} />
                     </Grid.Col>
 
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                         <Controller
                             name="estimate_date"
                             control={control}
@@ -156,7 +153,6 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                 <DatePicker
                                     label="Data preventivo"
                                     size="xl"
-                                    variant="filled"
                                     inputFormat="DD/MM/YYYY"
                                     icon={<CalendarIcon className="icon-field-left" />}
                                     value={field.value && new Date(field.value)}
@@ -166,8 +162,8 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={6}>
-                        <TextInput label="Agente" size="xl" variant="filled" required {...register('representative', { required: "L'agente è obbligatorio" })} error={errors.representative?.message} />
+                    <Grid.Col span={12}>
+                        <TextInput label="Agente" size="xl" required {...register('representative', { required: "L'agente è obbligatorio" })} error={errors.representative?.message} />
                     </Grid.Col>
 
                     <Grid.Col>
@@ -176,18 +172,18 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                             control={control}
                             rules={{ required: 'La quantità è obbligatoria' }}
                             render={({ field, fieldState }) => (
-                                <NumberInput label="Quantità" size="xl" variant="filled" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+                                <NumberInput label="Quantità" size="xl" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
                             )}
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={11}>
+                    <Grid.Col span={21}>
                         <Button type="submit" size="xl" uppercase fullWidth>
                             Salva
                         </Button>
                     </Grid.Col>
 
-                    <Grid.Col span={1}>
+                    <Grid.Col span={3}>
                         <Button size="xl" uppercase color="red" fullWidth onClick={() => reset(contract)}>
                             Reset
                         </Button>

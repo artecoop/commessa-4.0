@@ -11,7 +11,7 @@ import { Contract, FetchResult, Press, Processing } from 'types';
 import Layout from '@components/_layout';
 import Notes from '@components/notes';
 
-import { ActionIcon, Divider, Group, Modal, NumberInput, SimpleGrid, Table, Title } from '@mantine/core';
+import { ActionIcon, Divider, Group, Indicator, Modal, NumberInput, ScrollArea, SimpleGrid, Table, Title } from '@mantine/core';
 
 import { CheckIcon, PencilAltIcon } from '@heroicons/react/outline';
 
@@ -42,8 +42,6 @@ const Operative: React.FC = () => {
     const savePress = async (id: number) => {
         const working_hours = (document.getElementById(`press_working_hours_${id}`) as HTMLInputElement).value;
         const consumed_sheets = (document.getElementById(`press_consumed_sheets_${id}`) as HTMLInputElement).value;
-
-        console.log(working_hours, consumed_sheets);
 
         const press = contract?.data.press?.find(p => p.id === id);
         if (press) {
@@ -83,7 +81,15 @@ const Operative: React.FC = () => {
             </Title>
             {contract.data.description && <>{contract.data.description}</>}
 
-            <SimpleGrid cols={5} mt="xl">
+            <SimpleGrid
+                cols={5}
+                breakpoints={[
+                    { maxWidth: 980, cols: 3, spacing: 'md' },
+                    { maxWidth: 755, cols: 2, spacing: 'sm' },
+                    { maxWidth: 600, cols: 1, spacing: 'sm' }
+                ]}
+                mt="xl"
+            >
                 <div>
                     <b>Qauntità</b>: {contract.data.quantity}
                 </div>
@@ -120,44 +126,46 @@ const Operative: React.FC = () => {
 
                     <Title order={3}>Lavorazioni di grafica e prestampa</Title>
 
-                    <Table striped fontSize="lg" mt="xl">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Nome</th>
-                                <th>Ore preventivate</th>
-                                <th>Ore lavorate</th>
-                                <th className="action-operative" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {contract.data.processings
-                                ?.filter(p => p.process_definition?.pre)
-                                ?.map(p => (
-                                    <tr key={p.id}>
-                                        <td>
-                                            <b>{p.process_definition?.name}</b>
-                                        </td>
-                                        <td>{p.name}</td>
-                                        <td>{p.estimate_hours}</td>
-                                        <td>
-                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours ?? undefined} />
-                                        </td>
-                                        <td>
-                                            <Group spacing="xs">
-                                                <ActionIcon color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
-                                                    <CheckIcon />
-                                                </ActionIcon>
+                    <ScrollArea>
+                        <Table striped fontSize="lg" mt="xl" style={{ minWidth: 600 }}>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Nome</th>
+                                    <th style={{ width: '200px' }}>Ore lavorate</th>
+                                    <th className="action-operative" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {contract.data.processings
+                                    ?.filter(p => p.process_definition?.pre)
+                                    ?.map(p => (
+                                        <tr key={p.id}>
+                                            <td>
+                                                <b>{p.process_definition?.name}</b>
+                                            </td>
+                                            <td>{p.name}</td>
+                                            <td>
+                                                <NumberInput id={`processing_working_hours_${p.id}`} size="xl" min={0.5} step={0.5} defaultValue={p.working_hours ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <Group spacing="xs">
+                                                    <ActionIcon color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
+                                                        <CheckIcon />
+                                                    </ActionIcon>
 
-                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
-                                                    <PencilAltIcon />
-                                                </ActionIcon>
-                                            </Group>
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </Table>
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
+                                                        <Indicator color="red" disabled={p.notes === null || p.notes?.length === 0}>
+                                                            <PencilAltIcon />
+                                                        </Indicator>
+                                                    </ActionIcon>
+                                                </Group>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </Table>
+                    </ScrollArea>
                 </>
             )}
 
@@ -172,83 +180,87 @@ const Operative: React.FC = () => {
 
                     <Title order={3}>Avviamenti offset</Title>
 
-                    <Table striped fontSize="lg" mt="xl">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Descrizione</th>
-                                <th>Colori</th>
-                                <th>Pantoni</th>
-                                <th>Verniciatura</th>
-                                <th>Resa</th>
-                                <th>Fogli</th>
-                                <th>Carta</th>
-                                <th>Ore lavorate</th>
-                                <th>Fogli usati</th>
-                                <th className="action-operative" />
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <ScrollArea>
+                        <Table striped fontSize="lg" mt="xl" style={{ minWidth: 2000 }}>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Descrizione</th>
+                                    <th>Colori</th>
+                                    <th>Pantoni</th>
+                                    <th>Verniciatura</th>
+                                    <th>Resa</th>
+                                    <th>Fogli</th>
+                                    <th>Carta</th>
+                                    <th style={{ width: '200px' }}>Ore lavorate</th>
+                                    <th style={{ width: '200px' }}>Fogli usati</th>
+                                    <th className="action-operative" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {contract.data.press
+                                    .filter(p => p.run_type?.kind === 'offset')
+                                    .map(op => (
+                                        <tr key={op.id}>
+                                            <td>
+                                                <b>{op.run_type?.name}</b>
+                                            </td>
+                                            <td>
+                                                <b>{op.description}</b>
+                                            </td>
+                                            <td>{op.colors?.map(c => c.toUpperCase())}</td>
+                                            <td>{op.pantones?.map(pa => pa.name).join(', ')}</td>
+                                            <td>{op.varnish?.name}</td>
+                                            <td>{op.yield}</td>
+                                            <td>{op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0 ? Math.ceil(contract.data.quantity / op.yield) : '-'}</td>
+                                            <td>
+                                                {op.paper.name} {op.paper.weight}gr {op.paper.format} {op.paper.orientation}
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`press_working_hours_${op.id}`} size="xl" min={0.5} step={0.5} defaultValue={op.working_hours ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`press_consumed_sheets_${op.id}`} size="xl" min={0.5} step={0.5} defaultValue={op.consumed_sheets ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <Group spacing="xs">
+                                                    <ActionIcon color="green" size="xl" onClick={() => savePress(op.id as number)}>
+                                                        <CheckIcon />
+                                                    </ActionIcon>
+
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(op)}>
+                                                        <Indicator color="red" disabled={op.notes === null || op.notes?.length === 0}>
+                                                            <PencilAltIcon />
+                                                        </Indicator>
+                                                    </ActionIcon>
+                                                </Group>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </Table>
+
+                        <Title order={3} mt="xl">
+                            Lastre:&nbsp;
                             {contract.data.press
                                 .filter(p => p.run_type?.kind === 'offset')
-                                .map(op => (
-                                    <tr key={op.id}>
-                                        <td>
-                                            <b>{op.run_type?.name}</b>
-                                        </td>
-                                        <td>
-                                            <b>{op.description}</b>
-                                        </td>
-                                        <td>{op.colors?.map(c => c.toUpperCase())}</td>
-                                        <td>{op.pantones?.map(pa => pa.name).join(', ')}</td>
-                                        <td>{op.varnish?.name}</td>
-                                        <td>{op.yield}</td>
-                                        <td>{op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0 ? Math.ceil(contract.data.quantity / op.yield) : '-'}</td>
-                                        <td>
-                                            {op.paper.name} {op.paper.weight}gr {op.paper.format} {op.paper.orientation}
-                                        </td>
-                                        <td>
-                                            <NumberInput id={`press_working_hours_${op.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={op.working_hours ?? undefined} />
-                                        </td>
-                                        <td>
-                                            <NumberInput id={`press_consumed_sheets_${op.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={op.consumed_sheets ?? undefined} />
-                                        </td>
-                                        <td>
-                                            <Group spacing="xs">
-                                                <ActionIcon color="green" size="xl" onClick={() => savePress(op.id as number)}>
-                                                    <CheckIcon />
-                                                </ActionIcon>
-
-                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(op)}>
-                                                    <PencilAltIcon />
-                                                </ActionIcon>
-                                            </Group>
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </Table>
-
-                    <Title order={3} mt="xl">
-                        Lastre:&nbsp;
-                        {contract.data.press
-                            .filter(p => p.run_type?.kind === 'offset')
-                            .flatMap(op => op.colors)
-                            .filter(op => op && op.length > 0).length +
-                            contract.data.press
+                                .flatMap(op => op.colors)
+                                .filter(op => op && op.length > 0).length +
+                                contract.data.press
+                                    .filter(p => p.run_type?.kind === 'offset')
+                                    .flatMap(op => op.pantones)
+                                    .filter(op => op !== null).length +
+                                contract.data.press
+                                    .filter(p => p.run_type?.kind === 'offset')
+                                    .flatMap(op => op.varnish)
+                                    .filter(v => v?.add_plate).length}
+                            &nbsp;- Fogli:&nbsp;
+                            {contract.data.press
                                 .filter(p => p.run_type?.kind === 'offset')
-                                .flatMap(op => op.pantones)
-                                .filter(op => op !== null).length +
-                            contract.data.press
-                                .filter(p => p.run_type?.kind === 'offset')
-                                .flatMap(op => op.varnish)
-                                .filter(v => v?.add_plate).length}
-                        &nbsp;- Fogli:&nbsp;
-                        {contract.data.press
-                            .filter(p => p.run_type?.kind === 'offset')
-                            .filter(op => op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0)
-                            .reduce((acc, curr) => acc + Math.ceil(contract.data.quantity / curr.yield), 0)}
-                    </Title>
+                                .filter(op => op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0)
+                                .reduce((acc, curr) => acc + Math.ceil(contract.data.quantity / curr.yield), 0)}
+                        </Title>
+                    </ScrollArea>
                 </>
             )}
 
@@ -263,59 +275,63 @@ const Operative: React.FC = () => {
 
                     <Title order={3}>Avviamenti digitali</Title>
 
-                    <Table striped fontSize="lg" mt="xl">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Descrizione</th>
-                                <th>Colori</th>
-                                <th>Resa</th>
-                                <th>Fogli</th>
-                                <th>Carta</th>
-                                <th>Ore lavorate</th>
-                                <th>Fogli usati</th>
-                                <th className="action-operative" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {contract.data.press
-                                .filter(p => p.run_type?.kind === 'digital')
-                                .map(dp => (
-                                    <tr key={dp.id}>
-                                        <td>
-                                            <b>{dp.run_type?.name}</b>
-                                        </td>
-                                        <td>{dp.description}</td>
-                                        <td>{dp.colors && dp.colors.length > 1 ? 'Colori' : 'B/N'}</td>
-                                        <td>{dp.yield}</td>
-                                        <td>{dp.sheets}</td>
-                                        <td>{dp.paper.name}</td>
-                                        <td>
-                                            <NumberInput id={`press_working_hours_${dp.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={dp.working_hours ?? undefined} />
-                                        </td>
-                                        <td>
-                                            <NumberInput id={`press_consumed_sheets_${dp.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={dp.consumed_sheets ?? undefined} />
-                                        </td>
-                                        <td>
-                                            <Group spacing="xs">
-                                                <ActionIcon color="green" size="xl" onClick={() => savePress(dp.id as number)}>
-                                                    <CheckIcon />
-                                                </ActionIcon>
+                    <ScrollArea>
+                        <Table striped fontSize="lg" mt="xl" style={{ minWidth: 2000 }}>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Descrizione</th>
+                                    <th>Colori</th>
+                                    <th>Resa</th>
+                                    <th>Fogli</th>
+                                    <th>Carta</th>
+                                    <th>Ore lavorate</th>
+                                    <th>Fogli usati</th>
+                                    <th className="action-operative" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {contract.data.press
+                                    .filter(p => p.run_type?.kind === 'digital')
+                                    .map(dp => (
+                                        <tr key={dp.id}>
+                                            <td>
+                                                <b>{dp.run_type?.name}</b>
+                                            </td>
+                                            <td>{dp.description}</td>
+                                            <td>{dp.colors && dp.colors.length > 1 ? 'Colori' : 'B/N'}</td>
+                                            <td>{dp.yield}</td>
+                                            <td>{dp.sheets}</td>
+                                            <td>{dp.paper.name}</td>
+                                            <td>
+                                                <NumberInput id={`press_working_hours_${dp.id}`} size="xl" min={0.5} step={0.5} defaultValue={dp.working_hours ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`press_consumed_sheets_${dp.id}`} size="xl" min={0.5} step={0.5} defaultValue={dp.consumed_sheets ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <Group spacing="xs">
+                                                    <ActionIcon color="green" size="xl" onClick={() => savePress(dp.id as number)}>
+                                                        <CheckIcon />
+                                                    </ActionIcon>
 
-                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(dp)}>
-                                                    <PencilAltIcon />
-                                                </ActionIcon>
-                                            </Group>
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </Table>
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(dp)}>
+                                                        <Indicator color="red" disabled={dp.notes === null || dp.notes?.length === 0}>
+                                                            <PencilAltIcon />
+                                                        </Indicator>
+                                                    </ActionIcon>
+                                                </Group>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </Table>
 
-                    <Title order={3} mt="xl">
-                        Fogli:&nbsp;
-                        {contract.data.press.filter(p => p.run_type?.kind === 'digital').reduce((acc, curr) => acc + (curr.sheets || 0), 0)}
-                    </Title>
+                        <Title order={3} mt="xl">
+                            Fogli:&nbsp;
+                            {contract.data.press.filter(p => p.run_type?.kind === 'digital').reduce((acc, curr) => acc + (curr.sheets || 0), 0)}
+                        </Title>
+                    </ScrollArea>
                 </>
             )}
 
@@ -330,54 +346,56 @@ const Operative: React.FC = () => {
 
                     <Title order={3}>Lavorazioni post stampa</Title>
 
-                    <Table striped fontSize="lg" mt="xl">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Descrizione</th>
-                                <th>Ore preventivate</th>
-                                <th>Ore setup</th>
-                                <th>Ore lavorazione</th>
-                                <th>Quantità</th>
-                                <th>Quantità effettiva</th>
-                                <th className="action-operative" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {contract.data.processings
-                                .filter(p => !p.process_definition?.pre)
-                                .map(p => (
-                                    <tr key={p.id}>
-                                        <td>
-                                            <b>{p.process_definition?.name}</b>
-                                        </td>
-                                        <td>{p.name}</td>
-                                        <td>{p.estimate_hours}</td>
-                                        <td>
-                                            <NumberInput id={`processing_setup_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.setup_hours ?? undefined} />
-                                        </td>
-                                        <td>
-                                            <NumberInput id={`processing_working_hours_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.working_hours ?? undefined} />
-                                        </td>
-                                        <td>{p.expected_quantity ?? '-'}</td>
-                                        <td>
-                                            <NumberInput id={`processing_actual_quantity_${p.id}`} size="xl" variant="filled" min={0.5} step={0.5} defaultValue={p.actual_quantity ?? undefined} />
-                                        </td>
-                                        <td>
-                                            <Group spacing="xs">
-                                                <ActionIcon color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
-                                                    <CheckIcon />
-                                                </ActionIcon>
+                    <ScrollArea>
+                        <Table striped fontSize="lg" mt="xl" style={{ minWidth: 1000 }}>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Descrizione</th>
+                                    <th style={{ width: '200px' }}>Ore setup</th>
+                                    <th style={{ width: '200px' }}>Ore lavorazione</th>
+                                    <th>Quantità</th>
+                                    <th style={{ width: '200px' }}>Quantità effettiva</th>
+                                    <th className="action-operative" />
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {contract.data.processings
+                                    .filter(p => !p.process_definition?.pre)
+                                    .map(p => (
+                                        <tr key={p.id}>
+                                            <td>
+                                                <b>{p.process_definition?.name}</b>
+                                            </td>
+                                            <td>{p.name}</td>
+                                            <td>
+                                                <NumberInput id={`processing_setup_hours_${p.id}`} size="xl" min={0.5} step={0.5} defaultValue={p.setup_hours ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`processing_working_hours_${p.id}`} size="xl" min={0.5} step={0.5} defaultValue={p.working_hours ?? undefined} />
+                                            </td>
+                                            <td>{p.expected_quantity ?? '-'}</td>
+                                            <td>
+                                                <NumberInput id={`processing_actual_quantity_${p.id}`} size="xl" min={0.5} step={0.5} defaultValue={p.actual_quantity ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <Group spacing="xs">
+                                                    <ActionIcon color="green" size="xl" onClick={() => saveProcessing(p.id as number)}>
+                                                        <CheckIcon />
+                                                    </ActionIcon>
 
-                                                <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
-                                                    <PencilAltIcon />
-                                                </ActionIcon>
-                                            </Group>
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </Table>
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
+                                                        <Indicator color="red" disabled={p.notes === null || p.notes?.length === 0}>
+                                                            <PencilAltIcon />
+                                                        </Indicator>
+                                                    </ActionIcon>
+                                                </Group>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </Table>
+                    </ScrollArea>
                 </>
             )}
 

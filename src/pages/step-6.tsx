@@ -68,8 +68,8 @@ const Step6: React.FC<Props> = ({ contract, queryFields }: Props) => {
                 {fields.map((v, i) => (
                     <Fragment key={v.id}>
                         {(!v.process_definition || (!v.process_definition.pre && !v.process_definition.special)) && (
-                            <Grid mt="lg">
-                                <Grid.Col span={2}>
+                            <Grid mt="lg" columns={24} align="end">
+                                <Grid.Col span={4}>
                                     <Controller
                                         name={`processings.${i}.process_definition`}
                                         control={control}
@@ -78,7 +78,6 @@ const Step6: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                             <Select
                                                 label="Lavorazione"
                                                 size="xl"
-                                                variant="filled"
                                                 required
                                                 value={field.value?.id?.toString()}
                                                 onChange={field.onChange}
@@ -89,18 +88,17 @@ const Step6: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={5}>
+                                <Grid.Col span={11}>
                                     <TextInput
                                         label="Nome lavorazione"
                                         size="xl"
-                                        variant="filled"
                                         required
                                         {...register(`processings.${i}.name` as const, { required: 'Il nome lavorazione è obbligatorio' })}
                                         error={errors.processings?.[i]?.name?.message}
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={2}>
+                                <Grid.Col span={4}>
                                     <Controller
                                         name={`processings.${i}.estimate_hours`}
                                         control={control}
@@ -109,7 +107,6 @@ const Step6: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                             <NumberInput
                                                 label="Ore preventivate"
                                                 size="xl"
-                                                variant="filled"
                                                 required
                                                 min={0}
                                                 precision={1}
@@ -122,17 +119,15 @@ const Step6: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={2}>
+                                <Grid.Col span={4}>
                                     <Controller
                                         name={`processings.${i}.expected_quantity`}
                                         control={control}
-                                        render={({ field }) => (
-                                            <NumberInput label="Quantità" size="xl" variant="filled" min={0} precision={1} step={0.5} value={field.value} onChange={field.onChange} />
-                                        )}
+                                        render={({ field }) => <NumberInput label="Quantità" size="xl" min={0} precision={1} step={0.5} value={field.value} onChange={field.onChange} />}
                                     />
                                 </Grid.Col>
 
-                                <Grid.Col span={1}>
+                                <Grid.Col span={1} pb="lg">
                                     <ActionIcon size="xl" color="red" onClick={() => removeProcessing(i)}>
                                         <TrashIcon />
                                     </ActionIcon>
