@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
@@ -8,14 +9,25 @@ import { Contract, FetchResult } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Anchor, Group, ScrollArea, Table, Title } from '@mantine/core';
+import { ActionIcon, Anchor, Box, Group, Pagination, ScrollArea, Table, Title } from '@mantine/core';
 
 import { EyeIcon, PencilIcon, PlusIcon, PrinterIcon } from '@heroicons/react/outline';
 
 const Commesse: React.FC = () => {
     const user = useAuth();
 
-    const { data: contracts } = useSWR<FetchResult<Contract[]>>(['/items/contracts', { fields: ['id', 'title', 'date', 'customer', 'desired_delivery'] }]);
+    const limit = 25;
+    const [page, setPage] = useState(1);
+
+    const queryParams = {
+        ields: ['id', 'title', 'date', 'customer', 'desired_delivery'],
+        sort: ['-date_created'],
+        limit,
+        meta: 'total_count',
+        page
+    };
+
+    const { data: contracts } = useSWR<FetchResult<Contract[]>>(['/items/contracts', queryParams]);
 
     return (
         <Layout title="Commesse">
@@ -42,9 +54,13 @@ const Commesse: React.FC = () => {
                         {contracts?.data.map(c => (
                             <tr key={c.id}>
                                 <td>
-                                    <Anchor component={Link} to={`manage/${c.id}`} size="lg">
+                                    {user.isInRole?.(['Administrator', 'Editor']) ? (
+                                        <Anchor component={Link} to={`manage/${c.id}`} size="lg">
+                                            <b>{c.title}</b>
+                                        </Anchor>
+                                    ) : (
                                         <b>{c.title}</b>
-                                    </Anchor>
+                                    )}
                                 </td>
                                 <td>{dayjs(c.date).format('DD/MM/YYYY')}</td>
                                 <td>{c.customer}</td>
@@ -62,7 +78,7 @@ const Commesse: React.FC = () => {
                                         </ActionIcon>
 
                                         {user.isInRole?.(['Administrator', 'Editor']) && (
-                                            <ActionIcon size="lg" color="red" onClick={() => window.open(`/print/${c.id}`, 'printWindow', 'popup')}>
+                                            <ActionIcon size="lg" color="red" component={Link} to={`/print/${c.id}`}>
                                                 <PrinterIcon />
                                             </ActionIcon>
                                         )}
@@ -72,6 +88,10 @@ const Commesse: React.FC = () => {
                         ))}
                     </tbody>
                 </Table>
+
+                <Box mt="xl" sx={{ display: 'flex', justifyContent: 'end' }}>
+                    <Pagination page={page} onChange={setPage} total={Math.ceil((contracts?.meta?.total_count ?? 1) / limit)} />
+                </Box>
             </ScrollArea>
         </Layout>
     );

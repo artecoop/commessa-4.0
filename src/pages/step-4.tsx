@@ -134,6 +134,8 @@ const Step4: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                     label="Carta"
                                     size="xl"
                                     required
+                                    searchable
+                                    nothingFound="Nessuna carta"
                                     value={field.value?.toString()}
                                     onChange={field.onChange}
                                     error={fieldState.error?.message}

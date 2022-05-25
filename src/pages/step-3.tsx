@@ -7,9 +7,7 @@ import { error, success } from '@lib/notification';
 
 import { Contract, FetchResult, Press, Paper, Varnish, RunType } from 'types';
 
-import { ActionIcon, Button, Checkbox, CheckboxGroup, NumberInput, Select, Table, TextInput, Title, Text, Grid, SimpleGrid, Group, Autocomplete } from '@mantine/core';
-
-import AutoCompleteItem from '@components/autocomplete-item';
+import { ActionIcon, Button, Checkbox, CheckboxGroup, NumberInput, Select, Table, TextInput, Title, Text, Grid, SimpleGrid, Group } from '@mantine/core';
 
 import { PlusIcon, TrashIcon } from '@heroicons/react/outline';
 
@@ -61,8 +59,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
     }, [contract, contractSetValue]);
 
     const onSubmit = (input: Form) => {
-        console.log(input.paper);
-        /* const { run_type, paper, varnish, ...rest } = input;
+        const { run_type, paper, varnish, ...rest } = input;
 
         const parsed = {
             run_type: runTypes?.data.find(r => r.id === +run_type),
@@ -79,7 +76,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
             parsed.pantones = undefined;
         }
 
-        appendPress(parsed); */
+        appendPress(parsed);
     };
 
     const { mutate } = useSWRConfig();
@@ -96,7 +93,12 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
     };
 
     const buildPaperLabel = (p: Paper) => {
-        return `${p.name} ${p.weight}gr ${p.format} ${p.orientation ?? ''}`;
+        let label = `${p.name} ${p.weight}gr ${p.format}`;
+        if (p.orientation) {
+            label = `${label} (${p.orientation === 'long' ? 'Lato lungo' : 'Lato corto'})`;
+        }
+
+        return label;
     };
 
     return (
@@ -136,16 +138,16 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                             control={realFormControl}
                             rules={{ required: 'La carta è obbligatoria' }}
                             render={({ field, fieldState }) => (
-                                <Autocomplete
+                                <Select
                                     label="Carta"
                                     size="xl"
                                     required
+                                    searchable
+                                    nothingFound="Nessuna carta"
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={fieldState.error?.message}
-                                    itemComponent={AutoCompleteItem}
                                     data={papers?.data.map(p => ({ value: p.id?.toString() || '', label: buildPaperLabel(p) })) || []}
-                                    filter={(value, item) => item.value.toLowerCase().includes(value.toLowerCase().trim()) || item.label.toLowerCase().includes(value.toLowerCase().trim())}
                                 />
                             )}
                         />
