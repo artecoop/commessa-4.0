@@ -50,6 +50,8 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
             setValue('estimate_date', contract.estimate_date, { shouldDirty: true });
             setValue('representative', contract.representative, { shouldDirty: true });
             setValue('quantity', contract.quantity, { shouldDirty: true });
+        } else {
+            setValue('date', new Date(), { shouldDirty: true });
         }
     }, [contract, setValue]);
 
@@ -84,16 +86,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                             control={control}
                             rules={{ required: 'Il numero della commessa è obbligatorio' }}
                             render={({ field, fieldState }) => (
-                                <NumberInput
-                                    label="Numero"
-                                    size="xl"
-                                    required
-                                    min={1}
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    error={fieldState.error?.message}
-                                    disabled
-                                />
+                                <NumberInput label="Numero" size="xl" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} disabled />
                             )}
                         />
                     </Grid.Col>
@@ -111,7 +104,6 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                                     inputFormat="DD/MM/YYYY"
                                     icon={<CalendarIcon className="icon-field-left" />}
                                     value={field.value && new Date(field.value)}
-                                    defaultValue={new Date()}
                                     onChange={field.onChange}
                                     error={fieldState.error?.message}
                                     disabled={contract !== undefined}

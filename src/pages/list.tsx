@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
@@ -9,9 +9,9 @@ import { Contract, FetchResult } from 'types';
 
 import Layout from '@components/_layout';
 
-import { ActionIcon, Anchor, Box, Group, Pagination, ScrollArea, Table, Title } from '@mantine/core';
+import { ActionIcon, Anchor, Box, Group, Pagination, ScrollArea, Table, TextInput, Title } from '@mantine/core';
 
-import { EyeIcon, PencilIcon, PlusIcon, PrinterIcon } from '@heroicons/react/outline';
+import { EyeIcon, PencilIcon, PlusIcon, PrinterIcon, SearchIcon, XIcon } from '@heroicons/react/outline';
 
 const Commesse: React.FC = () => {
     const user = useAuth();
@@ -19,25 +19,58 @@ const Commesse: React.FC = () => {
     const limit = 25;
     const [page, setPage] = useState(1);
 
+    const [searchBox, setSearchBox] = useState<string>('');
+    const [search, setSearch] = useState<string>();
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (searchBox.length > 2) {
+                setSearch(searchBox);
+            } else {
+                setSearch(undefined);
+            }
+        }, 500);
+
+        return () => clearTimeout(handler);
+    }, [searchBox]);
+
     const queryParams = {
         ields: ['id', 'title', 'date', 'customer', 'desired_delivery'],
         sort: ['-date_created'],
         limit,
         meta: 'total_count',
-        page
+        page,
+        search
     };
 
     const { data: contracts } = useSWR<FetchResult<Contract[]>>(['/items/contracts', queryParams]);
 
     return (
         <Layout title="Commesse">
-            <Group>
-                <Title order={1}>Commesse</Title>
+            <Box sx={{ display: 'flex' }}>
+                <Group>
+                    <Title order={1}>COMMESSE</Title>
 
-                <ActionIcon color="primary" component={Link} to="/commesse/manage">
-                    <PlusIcon />
-                </ActionIcon>
-            </Group>
+                    <ActionIcon color="primary" radius="xl" variant="filled" component={Link} to="/commesse/manage">
+                        <PlusIcon />
+                    </ActionIcon>
+                </Group>
+
+                <Box sx={{ flex: 1 }} />
+
+                <TextInput
+                    size="xl"
+                    label="Cerca tra le commesse"
+                    value={searchBox}
+                    onChange={e => setSearchBox(e.target.value)}
+                    icon={<SearchIcon className="icon-field-left" />}
+                    rightSection={
+                        <ActionIcon onClick={() => setSearchBox('')} mr="xl">
+                            <XIcon />
+                        </ActionIcon>
+                    }
+                />
+            </Box>
 
             <ScrollArea>
                 <Table striped fontSize="lg" mt="xl" style={{ minWidth: 1000 }}>

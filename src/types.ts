@@ -82,7 +82,7 @@ export type Press = {
     varnish?: Varnish;
     yield: number;
     paper: Paper;
-    sheets?: number;
+    sheets: number;
     consumed_sheets?: number | null;
     working_hours?: number | null;
     notes?: ProcessingNote[];

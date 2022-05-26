@@ -212,7 +212,7 @@ const Operative: React.FC = () => {
                                             <td>{op.pantones?.map(pa => pa.name).join(', ')}</td>
                                             <td>{op.varnish?.name}</td>
                                             <td>{op.yield}</td>
-                                            <td>{op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0 ? Math.ceil(contract.data.quantity / op.yield) : '-'}</td>
+                                            <td>{op.sheets}</td>
                                             <td>
                                                 {op.paper.name} {op.paper.weight}gr {op.paper.format} {op.paper.orientation}
                                             </td>
@@ -255,10 +255,7 @@ const Operative: React.FC = () => {
                                     .flatMap(op => op.varnish)
                                     .filter(v => v?.add_plate).length}
                             &nbsp;- Fogli:&nbsp;
-                            {contract.data.press
-                                .filter(p => p.run_type?.kind === 'offset')
-                                .filter(op => op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0)
-                                .reduce((acc, curr) => acc + Math.ceil(contract.data.quantity / curr.yield), 0)}
+                            {contract.data.press.filter(p => p.run_type?.kind === 'offset').reduce((acc, curr) => acc + curr.sheets, 0)}
                         </Title>
                     </ScrollArea>
                 </>

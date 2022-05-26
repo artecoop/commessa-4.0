@@ -111,7 +111,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         {v.process_definition?.special && (
                             <Grid mt="lg" align="end" columns={24} grow>
                                 <Grid.Col span={14}>
-                                    <TextInput label="Nome lavorazione" size="xl" disabled {...register(`processings.${i}.name` as const)} />
+                                    <TextInput label="Nome lavorazione" size="xl" {...register(`processings.${i}.name` as const)} />
                                 </Grid.Col>
 
                                 <Grid.Col span={4}>

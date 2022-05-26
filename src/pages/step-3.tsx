@@ -41,6 +41,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
         handleSubmit: realFormHandleSubmit,
         register: realFormRegister,
         control: realFormControl,
+        watch: realFormWatch,
         formState: { errors: realFormErrors }
     } = useForm<Form>();
     const {
@@ -128,7 +129,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={12}>
+                    <Grid.Col span={10}>
                         <TextInput label="Descrizione" size="xl" {...realFormRegister('description')} />
                     </Grid.Col>
 
@@ -153,12 +154,31 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={4}>
+                    <Grid.Col span={3}>
                         <Controller
                             name="yield"
                             control={realFormControl}
                             rules={{ required: 'La resa è obbligatoria' }}
                             render={({ field, fieldState }) => <NumberInput label="Resa" size="xl" required min={1} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />}
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={3}>
+                        <Controller
+                            name="sheets"
+                            control={realFormControl}
+                            rules={{ required: realFormWatch('run_type') !== '2' ? 'I fogli sono obbligatori' : undefined }}
+                            render={({ field, fieldState }) => (
+                                <NumberInput
+                                    label="Fogli"
+                                    size="xl"
+                                    required={realFormWatch('run_type') !== '2'}
+                                    min={1}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={fieldState.error?.message}
+                                />
+                            )}
                         />
                     </Grid.Col>
 
@@ -238,6 +258,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                 <th>Descrizione</th>
                                 <th>Carta</th>
                                 <th>Resa</th>
+                                <th>Fogli</th>
                                 <th>Colore</th>
                                 <th>Pantoni</th>
                                 <th>Vernice</th>
@@ -255,6 +276,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                                 {p.paper?.name} {p.paper?.weight}gr {p.paper?.format} {p.paper?.orientation}
                                             </td>
                                             <td>{p.yield}</td>
+                                            <td>{p.sheets}</td>
                                             <td>{p.colors?.map(c => c.toUpperCase())}</td>
                                             <td>{p.pantones ? p.pantones.map(n => n.name).join(', ') : '-'}</td>
                                             <td>{p.varnish?.name ?? '-'}</td>
