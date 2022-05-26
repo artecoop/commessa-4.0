@@ -115,7 +115,6 @@ const Print: React.FC = () => {
                                 <tr>
                                     <th>Tipo</th>
                                     <th>Nome</th>
-                                    <th>Ore preventivate</th>
                                     <th>Ore lavorate</th>
                                 </tr>
                             </thead>
@@ -128,7 +127,6 @@ const Print: React.FC = () => {
                                                 <b>{p.process_definition?.name}</b>
                                             </td>
                                             <td>{p.name}</td>
-                                            <td>{p.estimate_hours}</td>
                                             <td>{p.working_hours}</td>
                                         </tr>
                                     ))}
@@ -178,7 +176,7 @@ const Print: React.FC = () => {
                                             <td>{op.pantones?.map(pa => pa.name).join(', ')}</td>
                                             <td>{op.varnish?.name}</td>
                                             <td>{op.yield}</td>
-                                            <td>{op.run_type?.name !== 'Volta' ? Math.ceil(contract?.data.quantity / op.yield) : '-'}</td>
+                                            <td>{op.sheets ?? '-'}</td>
                                             <td>
                                                 {op.paper.name} {op.paper.weight}gr {op.paper.format} {op.paper.orientation}
                                             </td>
@@ -204,10 +202,7 @@ const Print: React.FC = () => {
                                     .flatMap(op => op.varnish)
                                     .filter(v => v?.add_plate).length}
                             &nbsp;- Fogli:&nbsp;
-                            {contract?.data.press
-                                .filter(p => p.run_type?.kind === 'offset')
-                                .filter(op => op.run_type?.name !== 'Volta' && op.colors && op.colors.length > 0)
-                                .reduce((acc, curr) => acc + Math.ceil(contract?.data.quantity / curr.yield), 0)}
+                            {contract?.data.press.filter(p => p.run_type?.kind === 'offset').reduce((acc, curr) => acc + (curr.sheets ?? 0), 0)}
                         </Title>
                     </>
                 )}
@@ -260,7 +255,7 @@ const Print: React.FC = () => {
 
                         <Title order={3} mt="xl">
                             Fogli:&nbsp;
-                            {contract?.data.press.filter(p => p.run_type?.kind === 'digital').reduce((acc, curr) => acc + (curr.sheets || 0), 0)}
+                            {contract?.data.press.filter(p => p.run_type?.kind === 'digital').reduce((acc, curr) => acc + (curr.sheets ?? 0), 0)}
                         </Title>
                     </>
                 )}
@@ -281,7 +276,6 @@ const Print: React.FC = () => {
                                 <tr>
                                     <th>Tipo</th>
                                     <th>Descrizione</th>
-                                    <th>Ore preventivate</th>
                                     <th>Ore setup</th>
                                     <th>Ore lavorazione</th>
                                     <th>Quantità</th>
@@ -297,7 +291,6 @@ const Print: React.FC = () => {
                                                 <b>{p.process_definition?.name}</b>
                                             </td>
                                             <td>{p.name}</td>
-                                            <td>{p.estimate_hours}</td>
                                             <td>{p.setup_hours}</td>
                                             <td>{p.working_hours}</td>
                                             <td>{p.expected_quantity ?? '-'}</td>

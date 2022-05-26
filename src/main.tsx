@@ -29,7 +29,8 @@ const swrConfig = {
 const theme: MantineThemeOverride = {
     fontFamily: 'open sans, sans-serif',
     headings: {
-        fontFamily: 'open sans, sans-serif'
+        fontFamily: 'montserrat, sans-serif',
+        fontWeight: 600
     },
     colors: {
         'artecoop-green': ['#f8fce0', '#ecf4ba', '#dfeb91', '#d2e268', '#c5da3e', '#acc125', '#86961b', '#5f6b10', '#384005', '#131600'],

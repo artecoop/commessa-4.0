@@ -255,7 +255,7 @@ const Operative: React.FC = () => {
                                     .flatMap(op => op.varnish)
                                     .filter(v => v?.add_plate).length}
                             &nbsp;- Fogli:&nbsp;
-                            {contract.data.press.filter(p => p.run_type?.kind === 'offset').reduce((acc, curr) => acc + curr.sheets, 0)}
+                            {contract.data.press.filter(p => p.run_type?.kind === 'offset').reduce((acc, curr) => acc + (curr.sheets ?? 0), 0)}
                         </Title>
                     </ScrollArea>
                 </>

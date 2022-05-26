@@ -44,7 +44,7 @@ const Step5: React.FC<Props> = ({ contract, queryFields }: Props) => {
             append({
                 process_definition: process,
                 name: `${process?.name} avviamento ${run?.description ?? run?.run_type.name}`,
-                expected_quantity: run?.sheets ?? Math.ceil((contract?.quantity ?? 0) / (run?.yield ?? 0))
+                expected_quantity: run?.sheets ?? 0
             });
         }
     };
