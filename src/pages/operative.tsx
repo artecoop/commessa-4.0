@@ -27,7 +27,7 @@ const Operative: React.FC = () => {
     const saveProcessing = async (id: number) => {
         const setup_hours = (document.getElementById(`processing_setup_hours_${id}`) as HTMLInputElement)?.value;
         const working_hours = (document.getElementById(`processing_working_hours_${id}`) as HTMLInputElement).value;
-        const actual_quantity = (document.getElementById(`processing_actual_quantity_${id}`) as HTMLInputElement).value;
+        const actual_quantity = (document.getElementById(`processing_actual_quantity_${id}`) as HTMLInputElement)?.value;
 
         const processing = contract?.data.processings?.find(p => p.id === id);
         if (processing) {
