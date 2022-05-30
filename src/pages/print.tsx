@@ -77,25 +77,33 @@ const Print: React.FC = () => {
                     {contract?.data.title}
                 </Title>
                 {contract?.data.description && <>{contract?.data.description}</>}
-                <SimpleGrid cols={4} mt="xl">
+                <SimpleGrid cols={5} mt="xl">
                     <div>
-                        <b>Cliente</b>: {contract?.data.customer}
+                        <b>Quantità</b>:<br /> {contract?.data.quantity}
+                    </div>
+
+                    <div>
+                        <b>Cliente</b>: <br />
+                        {contract?.data.customer}
                     </div>
 
                     {contract?.data.desired_delivery && (
                         <div>
-                            <b>Data di consegna</b>: {dayjs(contract?.data.desired_delivery).format('DD/MM/YYYY')}
+                            <b>Data di consegna</b>: <br />
+                            {dayjs(contract?.data.desired_delivery).format('DD/MM/YYYY')}
                         </div>
                     )}
 
                     {contract?.data.estimate && (
                         <div>
-                            <b>Preventivo</b>: {contract?.data.estimate} del {dayjs(contract?.data.estimate_date).format('DD/MM/YYYY')}
+                            <b>Preventivo</b>: <br />
+                            {contract?.data.estimate} del {dayjs(contract?.data.estimate_date).format('DD/MM/YYYY')}
                         </div>
                     )}
 
                     <div>
-                        <b>Agente</b>: {contract?.data.representative}
+                        <b>Agente</b>: <br />
+                        {contract?.data.representative}
                     </div>
                 </SimpleGrid>
 
