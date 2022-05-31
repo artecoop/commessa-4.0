@@ -1,6 +1,6 @@
 {
     "name": "commessa",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "description": "Commessa APP",
     "author": {
         "name": "Valerio Fornito",
@@ -40,8 +40,8 @@
         "eslint-plugin-jsx-a11y": "6.5.1",
         "eslint-plugin-react-hooks": "4.5.0",
         "eslint-plugin-import": "2.26.0",
-        "@typescript-eslint/eslint-plugin": "5.26.0",
-        "@typescript-eslint/parser": "5.26.0",
+        "@typescript-eslint/eslint-plugin": "5.27.0",
+        "@typescript-eslint/parser": "5.27.0",
         "typescript": "4.7.2"
     }
 }

@@ -24,18 +24,33 @@ const Operative: React.FC = () => {
 
     const { data: contract } = useSWR<FetchResult<Contract>>(key);
 
+    const { mutate } = useSWRConfig();
+
     const saveProcessing = async (id: number) => {
         const setup_hours = (document.getElementById(`processing_setup_hours_${id}`) as HTMLInputElement)?.value;
         const working_hours = (document.getElementById(`processing_working_hours_${id}`) as HTMLInputElement).value;
         const actual_quantity = (document.getElementById(`processing_actual_quantity_${id}`) as HTMLInputElement)?.value;
 
-        const processing = contract?.data.processings?.find(p => p.id === id);
-        if (processing) {
-            processing.setup_hours = setup_hours && +setup_hours > 0 ? +setup_hours : null;
-            processing.working_hours = working_hours && +working_hours > 0 ? +working_hours : null;
-            processing.actual_quantity = actual_quantity && +actual_quantity > 0 ? +actual_quantity : null;
+        try {
+            await mutate(
+                key,
+                apiPatch(url, {
+                    processings: {
+                        update: [
+                            {
+                                id,
+                                setup_hours: setup_hours && +setup_hours > 0 ? +setup_hours : null,
+                                working_hours: working_hours && +working_hours > 0 ? +working_hours : null,
+                                actual_quantity: actual_quantity && +actual_quantity > 0 ? +actual_quantity : null
+                            }
+                        ]
+                    }
+                })
+            );
 
-            await saveContract();
+            success('Lavorazione salvata con successo');
+        } catch (e) {
+            error(e);
         }
     };
 
@@ -43,31 +58,53 @@ const Operative: React.FC = () => {
         const working_hours = (document.getElementById(`press_working_hours_${id}`) as HTMLInputElement).value;
         const consumed_sheets = (document.getElementById(`press_consumed_sheets_${id}`) as HTMLInputElement).value;
 
-        const press = contract?.data.press?.find(p => p.id === id);
-        if (press) {
-            press.working_hours = working_hours && +working_hours > 0 ? +working_hours : null;
-            press.consumed_sheets = consumed_sheets && +consumed_sheets > 0 ? +consumed_sheets : null;
+        try {
+            await mutate(
+                key,
+                apiPatch(url, {
+                    press: {
+                        update: [
+                            {
+                                id,
+                                working_hours: working_hours && +working_hours > 0 ? +working_hours : null,
+                                consumed_sheets: consumed_sheets && +consumed_sheets > 0 ? +consumed_sheets : null
+                            }
+                        ]
+                    }
+                })
+            );
 
-            await saveContract();
+            success('Avviamento salvato con successo');
+        } catch (e) {
+            error(e);
         }
     };
 
     const [currentNotesHolder, setCurrentNotesHolder] = useState<Processing | Press>();
 
     const saveNotes = async () => {
-        await saveContract();
-
-        setCurrentNotesHolder(undefined);
-    };
-
-    const { mutate } = useSWRConfig();
-    const saveContract = async () => {
+        console.log(currentNotesHolder?.notes);
         try {
-            await mutate(key, apiPatch(url, contract?.data));
-            success('Commessa salvata con successo');
+            await mutate(
+                key,
+                apiPatch(url, {
+                    press: {
+                        update: [
+                            {
+                                id: currentNotesHolder?.id,
+                                notes: currentNotesHolder?.notes
+                            }
+                        ]
+                    }
+                })
+            );
+
+            success('Note salvate con successo');
         } catch (e) {
             error(e);
         }
+
+        setCurrentNotesHolder(undefined);
     };
 
     return contract ? (
