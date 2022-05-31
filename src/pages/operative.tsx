@@ -56,7 +56,9 @@ const Operative: React.FC = () => {
 
     const savePress = async (id: number) => {
         const working_hours = (document.getElementById(`press_working_hours_${id}`) as HTMLInputElement).value;
-        const consumed_sheets = (document.getElementById(`press_consumed_sheets_${id}`) as HTMLInputElement).value;
+        const setup_sheets = (document.getElementById(`press_setup_sheets_${id}`) as HTMLInputElement).value;
+        const produced_sheets = (document.getElementById(`press_produced_sheets_${id}`) as HTMLInputElement).value;
+        const wasted_sheets = (document.getElementById(`press_wasted_sheets_${id}`) as HTMLInputElement).value;
 
         try {
             await mutate(
@@ -67,7 +69,9 @@ const Operative: React.FC = () => {
                             {
                                 id,
                                 working_hours: working_hours && +working_hours > 0 ? +working_hours : null,
-                                consumed_sheets: consumed_sheets && +consumed_sheets > 0 ? +consumed_sheets : null
+                                setup_sheets: setup_sheets && +setup_sheets > 0 ? +setup_sheets : null,
+                                produced_sheets: produced_sheets && +produced_sheets > 0 ? +produced_sheets : null,
+                                wasted_sheets: wasted_sheets && +wasted_sheets > 0 ? +wasted_sheets : null
                             }
                         ]
                     }
@@ -231,7 +235,9 @@ const Operative: React.FC = () => {
                                     <th>Fogli</th>
                                     <th>Carta</th>
                                     <th style={{ width: '200px' }}>Ore lavorate</th>
-                                    <th style={{ width: '200px' }}>Fogli usati</th>
+                                    <th style={{ width: '200px' }}>Fogli setup</th>
+                                    <th style={{ width: '200px' }}>Fogli prodotti</th>
+                                    <th style={{ width: '200px' }}>Fogli di scarto</th>
                                     <th className="action-operative" />
                                 </tr>
                             </thead>
@@ -258,7 +264,13 @@ const Operative: React.FC = () => {
                                                 <NumberInput id={`press_working_hours_${op.id}`} size="xl" min={0.5} step={0.5} defaultValue={op.working_hours ?? undefined} />
                                             </td>
                                             <td>
-                                                <NumberInput id={`press_consumed_sheets_${op.id}`} size="xl" min={0.5} step={0.5} defaultValue={op.consumed_sheets ?? undefined} />
+                                                <NumberInput id={`press_setup_sheets_${op.id}`} size="xl" min={0.5} step={0.5} defaultValue={op.setup_sheets ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`press_produced_sheets_${op.id}`} size="xl" min={0.5} step={0.5} defaultValue={op.produced_sheets ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`press_wasted_sheets_${op.id}`} size="xl" min={0.5} step={0.5} defaultValue={op.wasted_sheets ?? undefined} />
                                             </td>
                                             <td>
                                                 <Group spacing="xs">
@@ -320,8 +332,10 @@ const Operative: React.FC = () => {
                                     <th>Resa</th>
                                     <th>Fogli</th>
                                     <th>Carta</th>
-                                    <th>Ore lavorate</th>
-                                    <th>Fogli usati</th>
+                                    <th style={{ width: '200px' }}>Ore lavorate</th>
+                                    <th style={{ width: '200px' }}>Fogli setup</th>
+                                    <th style={{ width: '200px' }}>Fogli prodotti</th>
+                                    <th style={{ width: '200px' }}>Fogli di scarto</th>
                                     <th className="action-operative" />
                                 </tr>
                             </thead>
@@ -342,7 +356,13 @@ const Operative: React.FC = () => {
                                                 <NumberInput id={`press_working_hours_${dp.id}`} size="xl" min={0.5} step={0.5} defaultValue={dp.working_hours ?? undefined} />
                                             </td>
                                             <td>
-                                                <NumberInput id={`press_consumed_sheets_${dp.id}`} size="xl" min={0.5} step={0.5} defaultValue={dp.consumed_sheets ?? undefined} />
+                                                <NumberInput id={`press_setup_sheets_${dp.id}`} size="xl" min={0.5} step={0.5} defaultValue={dp.setup_sheets ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`press_produced_sheets_${dp.id}`} size="xl" min={0.5} step={0.5} defaultValue={dp.produced_sheets ?? undefined} />
+                                            </td>
+                                            <td>
+                                                <NumberInput id={`press_wasted_sheets_${dp.id}`} size="xl" min={0.5} step={0.5} defaultValue={dp.wasted_sheets ?? undefined} />
                                             </td>
                                             <td>
                                                 <Group spacing="xs">
@@ -382,7 +402,7 @@ const Operative: React.FC = () => {
                     <Title order={3}>Lavorazioni post stampa</Title>
 
                     <ScrollArea>
-                        <Table striped fontSize="lg" mt="xl" style={{ minWidth: 1000 }}>
+                        <Table striped fontSize="lg" mt="xl" style={{ minWidth: 1400 }}>
                             <thead>
                                 <tr>
                                     <th>Tipo</th>

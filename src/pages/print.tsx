@@ -123,7 +123,7 @@ const Print: React.FC = () => {
                                 <tr>
                                     <th>Tipo</th>
                                     <th>Nome</th>
-                                    <th>Ore lavorate</th>
+                                    <th style={{ width: '150px' }}>Ore lavorate</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -165,8 +165,10 @@ const Print: React.FC = () => {
                                     <th>Resa</th>
                                     <th>Fogli</th>
                                     <th>Carta</th>
-                                    <th>Ore lavorate</th>
-                                    <th>Fogli usati</th>
+                                    <th style={{ width: '100px' }}>Ore lavorate</th>
+                                    <th style={{ width: '100px' }}>Fg setup</th>
+                                    <th style={{ width: '100px' }}>Fg prodotti</th>
+                                    <th style={{ width: '100px' }}>Fg scarto</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -189,7 +191,9 @@ const Print: React.FC = () => {
                                                 {op.paper.name} {op.paper.weight}gr {op.paper.format} {op.paper.orientation}
                                             </td>
                                             <td>{op.working_hours}</td>
-                                            <td>{op.consumed_sheets}</td>
+                                            <td>{op.setup_sheets}</td>
+                                            <td>{op.produced_sheets}</td>
+                                            <td>{op.wasted_sheets}</td>
                                         </tr>
                                     ))}
                             </tbody>
@@ -235,8 +239,10 @@ const Print: React.FC = () => {
                                     <th>Resa</th>
                                     <th>Fogli</th>
                                     <th>Carta</th>
-                                    <th>Ore lavorate</th>
-                                    <th>Fogli usati</th>
+                                    <th style={{ width: '100px' }}>Ore lavorate</th>
+                                    <th style={{ width: '100px' }}>Fg setup</th>
+                                    <th style={{ width: '100px' }}>Fg prodotti</th>
+                                    <th style={{ width: '100px' }}>Fg scarto</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -255,7 +261,9 @@ const Print: React.FC = () => {
                                                 {dp.paper.name} {dp.paper.weight}gr {dp.paper.format} {dp.paper.orientation}
                                             </td>
                                             <td>{dp.working_hours}</td>
-                                            <td>{dp.consumed_sheets}</td>
+                                            <td>{dp.setup_sheets}</td>
+                                            <td>{dp.produced_sheets}</td>
+                                            <td>{dp.wasted_sheets}</td>
                                         </tr>
                                     ))}
                             </tbody>

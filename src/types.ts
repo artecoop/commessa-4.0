@@ -83,7 +83,9 @@ export type Press = {
     yield: number;
     paper: Paper;
     sheets?: number;
-    consumed_sheets?: number | null;
+    setup_sheets?: number | null;
+    produced_sheets?: number | null;
+    wasted_sheets?: number | null;
     working_hours?: number | null;
     notes?: ProcessingNote[];
 };
