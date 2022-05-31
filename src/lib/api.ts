@@ -29,7 +29,11 @@ Axios.interceptors.response.use(
     async error => {
         const err = error.response.data as DirectusErrorBody;
 
-        if (!error.config.url.endsWith('/auth/refresh') && error.response?.status === 403 && err.errors.map(e => e.extensions.code).some(e => ['INVALID_TOKEN', 'TOKEN_EXPIRED'].includes(e))) {
+        if (
+            !error.config.url.endsWith('/auth/refresh') &&
+            [401, 403].includes(error.response?.status) &&
+            err.errors.map(e => e.extensions.code).some(e => ['INVALID_TOKEN', 'TOKEN_EXPIRED'].includes(e))
+        ) {
             const storedTokens = sessionStorage.getItem('token');
             if (storedTokens) {
                 try {
