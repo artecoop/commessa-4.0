@@ -84,31 +84,32 @@ const Operative: React.FC = () => {
         }
     };
 
-    const [currentNotesHolder, setCurrentNotesHolder] = useState<Processing | Press>();
+    const [currentNotesHolder, setCurrentNotesHolder] = useState<{ type: 'processings' | 'press'; reference: Processing | Press }>();
 
     const saveNotes = async () => {
-        console.log(currentNotesHolder?.notes);
-        try {
-            await mutate(
-                key,
-                apiPatch(url, {
-                    press: {
-                        update: [
-                            {
-                                id: currentNotesHolder?.id,
-                                notes: currentNotesHolder?.notes
-                            }
-                        ]
-                    }
-                })
-            );
+        if (currentNotesHolder) {
+            try {
+                await mutate(
+                    key,
+                    apiPatch(url, {
+                        [currentNotesHolder.type]: {
+                            update: [
+                                {
+                                    id: currentNotesHolder.reference.id,
+                                    notes: currentNotesHolder.reference.notes
+                                }
+                            ]
+                        }
+                    })
+                );
 
-            success('Note salvate con successo');
-        } catch (e) {
-            error(e);
+                success('Note salvate con successo');
+            } catch (e) {
+                error(e);
+            }
+
+            // setCurrentNotesHolder(undefined);
         }
-
-        setCurrentNotesHolder(undefined);
     };
 
     return contract ? (
@@ -146,9 +147,17 @@ const Operative: React.FC = () => {
                     </div>
                 )}
 
-                {contract.data.estimate && (
+                {contract?.data.estimate && (
                     <div>
-                        <b>Preventivo</b>:<br /> {contract.data.estimate} del {dayjs(contract.data.estimate_date).format('DD/MM/YYYY')}
+                        <b>Preventivo</b>: <br />
+                        {contract?.data.estimate}
+                    </div>
+                )}
+
+                {contract?.data.estimate_date && (
+                    <div>
+                        <b>Data preventivo</b>: <br />
+                        {dayjs(contract?.data.estimate_date).format('DD/MM/YYYY')}
                     </div>
                 )}
 
@@ -196,7 +205,7 @@ const Operative: React.FC = () => {
                                                         <CheckIcon />
                                                     </ActionIcon>
 
-                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder({ type: 'processings', reference: p })}>
                                                         <Indicator color="red" disabled={p.notes === null || p.notes?.length === 0}>
                                                             <PencilAltIcon />
                                                         </Indicator>
@@ -278,7 +287,7 @@ const Operative: React.FC = () => {
                                                         <CheckIcon />
                                                     </ActionIcon>
 
-                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(op)}>
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder({ type: 'press', reference: op })}>
                                                         <Indicator color="red" disabled={op.notes === null || op.notes?.length === 0}>
                                                             <PencilAltIcon />
                                                         </Indicator>
@@ -370,7 +379,7 @@ const Operative: React.FC = () => {
                                                         <CheckIcon />
                                                     </ActionIcon>
 
-                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(dp)}>
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder({ type: 'press', reference: dp })}>
                                                         <Indicator color="red" disabled={dp.notes === null || dp.notes?.length === 0}>
                                                             <PencilAltIcon />
                                                         </Indicator>
@@ -439,7 +448,7 @@ const Operative: React.FC = () => {
                                                         <CheckIcon />
                                                     </ActionIcon>
 
-                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder(p)}>
+                                                    <ActionIcon color="primary" size="xl" onClick={() => setCurrentNotesHolder({ type: 'processings', reference: p })}>
                                                         <Indicator color="red" disabled={p.notes === null || p.notes?.length === 0}>
                                                             <PencilAltIcon />
                                                         </Indicator>
@@ -456,7 +465,7 @@ const Operative: React.FC = () => {
 
             {currentNotesHolder && (
                 <Modal opened={true} onClose={() => setCurrentNotesHolder(undefined)} title="Note" size="xl" centered>
-                    <Notes processing={currentNotesHolder} onSave={() => saveNotes()} />
+                    <Notes processing={currentNotesHolder.reference} onSave={() => saveNotes()} />
                 </Modal>
             )}
         </Layout>
