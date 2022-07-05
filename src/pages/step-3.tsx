@@ -226,7 +226,7 @@ const Step3: React.FC<Props> = ({ contract, queryFields }: Props) => {
                                         size="xl"
                                         required
                                         {...realFormRegister(`pantones.${i}.name` as const, { required: 'Il pantone è obbligatorio se aggiunto' })}
-                                        error={realFormErrors.pantones?.[i].name?.message}
+                                        error={realFormErrors.pantones?.[i]?.name?.message}
                                     />
 
                                     <ActionIcon size="xl" color="red" onClick={() => removePantone(i)}>

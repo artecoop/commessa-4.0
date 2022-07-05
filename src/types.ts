@@ -45,6 +45,7 @@ export type Contract = {
     number: number;
     date: Date;
     customer: string;
+    customer_order_ref: string;
     title: string;
     description?: string;
     desired_delivery?: Date;

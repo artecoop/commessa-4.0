@@ -43,6 +43,7 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
             setValue('number', contract.number, { shouldDirty: true });
             setValue('date', contract.date, { shouldDirty: true });
             setValue('customer', contract.customer, { shouldDirty: true });
+            setValue('customer_order_ref', contract.customer_order_ref, { shouldDirty: true });
             setValue('title', contract.title, { shouldDirty: true });
             setValue('description', contract.description, { shouldDirty: true });
             setValue('desired_delivery', contract.desired_delivery, { shouldDirty: true });
@@ -112,8 +113,12 @@ const Step1: React.FC<Props> = ({ contract }: Props) => {
                         />
                     </Grid.Col>
 
-                    <Grid.Col span={14}>
+                    <Grid.Col span={10}>
                         <TextInput label="Cliente" size="xl" required {...register('customer', { required: 'Il cliente è obbligatorio' })} error={errors.customer?.message} />
+                    </Grid.Col>
+
+                    <Grid.Col span={4}>
+                        <TextInput label="Rif. Ord. Cliente" size="xl" {...register('customer_order_ref')} />
                     </Grid.Col>
 
                     <Grid.Col>

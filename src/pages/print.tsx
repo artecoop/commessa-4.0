@@ -87,24 +87,30 @@ const Print: React.FC = () => {
                         {contract?.data.customer}
                     </div>
 
+                    {contract?.data.customer_order_ref && (
+                        <div>
+                            <b>Rif. Ord. Cliente</b>:<br /> {contract.data.customer_order_ref}
+                        </div>
+                    )}
+
                     {contract?.data.desired_delivery && (
                         <div>
                             <b>Data di consegna</b>: <br />
-                            {dayjs(contract?.data.desired_delivery).format('DD/MM/YYYY')}
+                            {dayjs(contract.data.desired_delivery).format('DD/MM/YYYY')}
                         </div>
                     )}
 
                     {contract?.data.estimate && (
                         <div>
                             <b>Preventivo</b>: <br />
-                            {contract?.data.estimate}
+                            {contract.data.estimate}
                         </div>
                     )}
 
                     {contract?.data.estimate_date && (
                         <div>
                             <b>Data preventivo</b>: <br />
-                            {dayjs(contract?.data.estimate_date).format('DD/MM/YYYY')}
+                            {dayjs(contract.data.estimate_date).format('DD/MM/YYYY')}
                         </div>
                     )}
 

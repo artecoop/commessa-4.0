@@ -141,6 +141,12 @@ const Operative: React.FC = () => {
                     <b>Cliente</b>:<br /> {contract.data.customer}
                 </div>
 
+                {contract.data.customer_order_ref && (
+                    <div>
+                        <b>Rif. Ord. Cliente</b>:<br /> {contract.data.customer_order_ref}
+                    </div>
+                )}
+
                 {contract.data.desired_delivery && (
                     <div>
                         <b>Data di consegna</b>:<br /> {dayjs(contract.data.desired_delivery).format('DD/MM/YYYY')}
